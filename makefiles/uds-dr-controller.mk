@@ -1,0 +1,33 @@
+UDS_DR_NAME = dce-uds-dr-controller
+UDS_DR_IMAGE_DIR = ${PROJECT_SOURCE_CODE_DIR}/build
+UDS_DR_BUILD_BIN = ${BINS_DIR}/${UDS_DR_NAME}-run
+UDS_DR_BUILD_MAIN = ${CMDS_DIR}/manager/main.go
+
+UDS_DR_IMAGE_NAME = ${DOCKER_REGISTRY}/${UDS_DR_NAME}
+UDS_DR_RELEASE_IMAGE_NAME = ${RELEASE_DOCKER_REGISTRY}/${UDS_DR_NAME}
+
+.PHONY: uds_dr
+uds_dr:
+	GOARCH=amd64 ${BUILD_ENVS} ${BUILD_CMD} ${BUILD_OPTIONS} -o ${UDS_DR_BUILD_BIN} ${UDS_DR_BUILD_MAIN}
+
+.PHONY: uds_dr_arm64
+uds_dr_arm64:
+	GOARCH=arm64 ${BUILD_ENVS} ${BUILD_CMD} ${BUILD_OPTIONS} -o ${UDS_DR_BUILD_BIN} ${UDS_DR_BUILD_MAIN}
+
+.PHONY: uds_dr_image
+uds_dr_image:
+	${DOCKER_MAKE_CMD} make uds_dr
+	docker build -t ${UDS_DR_IMAGE_NAME}:${IMAGE_TAG} -f ${UDS_DR_IMAGE_DIR}/Dockerfile ${PROJECT_SOURCE_CODE_DIR}
+	docker push ${UDS_DR_IMAGE_NAME}:${IMAGE_TAG}
+
+.PHONY: uds_dr_release
+uds_dr_release:
+	# build for amd64 version
+	${DOCKER_MAKE_CMD} make uds_dr
+	${DOCKER_BUILDX_CMD_AMD64} -t ${UDS_DR_RELEASE_IMAGE_NAME}:${RELEASE_TAG}-amd64 -f ${UDS_DR_IMAGE_DIR}/Dockerfile ${PROJECT_SOURCE_CODE_DIR}
+	# build for arm64 version
+	${DOCKER_MAKE_CMD} make uds_dr_arm64
+	${DOCKER_BUILDX_CMD_ARM64} -t ${UDS_DR_RELEASE_IMAGE_NAME}:${RELEASE_TAG}-arm64 -f ${UDS_DR_IMAGE_DIR}/Dockerfile ${PROJECT_SOURCE_CODE_DIR}
+	# push to a public registry
+	${MUILT_ARCH_PUSH_CMD} ${UDS_DR_RELEASE_IMAGE_NAME}:${RELEASE_TAG}
+

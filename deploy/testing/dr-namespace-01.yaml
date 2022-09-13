@@ -1,0 +1,55 @@
+apiVersion: udsdr.dce.daocloud.io/v1alpha1
+kind: DRNamespace
+metadata:
+  name: dr-namespace-01
+  namespace: default
+spec:
+  active: true
+  collectorType: dr_resource_collector_list_watch
+  drFilterConfig:
+    variableMappingFilter:
+      kindListVariableMappings:
+      - keyValueMappings:
+          spec,template,spec,containers,image:
+            fromSubStr: 100.199.142.173
+            toSubStr: 100.199.142.179
+            variableType: var_t_str
+          spec,replicas:
+            toSubStr: "0"
+            variableType: var_t_int
+        kind:
+          group: apps
+          kind: Deployment
+          version: v1
+      - keyValueMappings:
+          spec,template,spec,containers,image:
+            fromSubStr: 100.199.142.173
+            toSubStr: 100.199.142.179
+            variableType: var_t_str
+          spec,replicas:
+            toSubStr: "1"
+            variableType: var_t_int
+        kind:
+          group: apps
+          kind: StatefulSet
+          version: v1
+    whiteListFilter:
+      kindWhiteList:
+      - group: apps
+        kind: Deployment
+        version: v1
+      - kind: PersistentVolumeClaim
+        version: v1
+      - kind: PersistentVolume
+        version: v1
+      - kind: ConfigMap
+        version: v1
+      - group: apps
+        kind: StatefulSet
+        version: v1
+      - group: dce.daocloud.io
+        kind: App
+        version: v1beta1
+  drPairCluster: dr-cluster-01
+  role: dr_role_prod
+  transportAdapter: dr_transport_adapter_kube_apiserver

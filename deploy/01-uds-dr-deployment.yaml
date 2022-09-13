@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dce-uds-dr-controller
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: dce-uds-dr-controller
+  template:
+    metadata:
+      labels:
+        name: dce-uds-dr-controller
+    spec:
+      serviceAccount: dce-uds-admin
+      containers:
+        - name: dce-uds-dr-controller
+          image: daocloud.io/daocloud/dce-uds-dr-controller:v0.1.0
+          imagePullPolicy: Always
+          args:
+          env:
+            - name: WATCH_NAMESPACE
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "dce-uds-dr-controller"
+          resources:
+            limits:
+              memory: 100Mi
+              cpu: 200m
+            requests:
+              memory: 50Mi
+              cpu: 100m
+
+          volumeMounts:
+            - name: timezone
+              mountPath: /etc/localtime
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /etc/localtime
+
