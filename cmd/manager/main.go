@@ -18,7 +18,7 @@ import (
 	"github.com/pelicon/dr/pkg/controller"
 	"github.com/pelicon/dr/version"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
@@ -102,7 +102,7 @@ func main() {
 
 	ctx := context.TODO()
 	// Become the leader before proceeding
-	err = leader.Become(ctx, "udsdr-lock")
+	err = leader.Become(ctx, "dr-lock")
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)
@@ -132,7 +132,7 @@ func main() {
 	mgr.GetConfig()
 	mgr.GetClient()
 
-	if err := udsdrv1alpha1.SchemeBuilder.AddToScheme(mgr.GetScheme()); err != nil {
+	if err := drv1alpha1.SchemeBuilder.AddToScheme(mgr.GetScheme()); err != nil {
 		logger.WithError(err).Error("Failed to setup scheme for all resources")
 		os.Exit(1)
 	}

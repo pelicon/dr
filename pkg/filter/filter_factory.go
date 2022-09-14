@@ -3,7 +3,7 @@ package filter
 import (
 	"sync"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	configs "github.com/pelicon/dr/pkg/configs"
 	"github.com/pelicon/dr/pkg/filter/pvcfilter"
 	"github.com/pelicon/dr/pkg/filter/variabledeletefilter"
@@ -18,31 +18,31 @@ var (
 
 type FilterAggregation struct {
 	*sync.Mutex
-	Namespace udsdrv1alpha1.Namespace
-	Filters   []udsdrv1alpha1.Filter
+	Namespace drv1alpha1.Namespace
+	Filters   []drv1alpha1.Filter
 }
 
-func (fa *FilterAggregation) UpdateFilterHook(fConfig *udsdrv1alpha1.DRFilterConfig) {
+func (fa *FilterAggregation) UpdateFilterHook(fConfig *drv1alpha1.DRFilterConfig) {
 	fa.Lock()
 	defer fa.Unlock()
 
 	fa.Filters = getFilters(fConfig)
 }
 
-func GetFilterAggregation(namespace udsdrv1alpha1.Namespace) *FilterAggregation {
+func GetFilterAggregation(namespace drv1alpha1.Namespace) *FilterAggregation {
 	fa := &FilterAggregation{
 		Mutex:     &sync.Mutex{},
 		Namespace: namespace,
-		Filters:   make([]udsdrv1alpha1.Filter, 0),
+		Filters:   make([]drv1alpha1.Filter, 0),
 	}
 	defer configs.GetConfigContainer().RegFilterConfigListener(namespace, fa.UpdateFilterHook)
 
 	return fa
 }
 
-func getFilters(fConfig *udsdrv1alpha1.DRFilterConfig) []udsdrv1alpha1.Filter {
+func getFilters(fConfig *drv1alpha1.DRFilterConfig) []drv1alpha1.Filter {
 	addDefaultConfig(fConfig)
-	filters := make([]udsdrv1alpha1.Filter, 0)
+	filters := make([]drv1alpha1.Filter, 0)
 
 	whitelistFilter := whitelistfilter.New()
 	if fConfig != nil && fConfig.WhiteListFilter != nil {
@@ -73,72 +73,72 @@ func getFilters(fConfig *udsdrv1alpha1.DRFilterConfig) []udsdrv1alpha1.Filter {
 	return filters
 }
 
-func addDefaultConfig(fConfig *udsdrv1alpha1.DRFilterConfig) {
+func addDefaultConfig(fConfig *drv1alpha1.DRFilterConfig) {
 	// enrich this if more default configs needed by filter
 	// if fConfig == nil || fConfig.WhiteListFilter == nil {
 	// 	return
 	// }
 	if fConfig == nil {
-		fConfig = &udsdrv1alpha1.DRFilterConfig{}
+		fConfig = &drv1alpha1.DRFilterConfig{}
 	}
 
 	if fConfig.WhiteListFilter == nil {
-		fConfig.WhiteListFilter = &udsdrv1alpha1.WhiteListFilterConfig{}
+		fConfig.WhiteListFilter = &drv1alpha1.WhiteListFilterConfig{}
 	}
 
 	/*
-		deploymentGVK := udsdrv1alpha1.GroupVersionKind{
+		deploymentGVK := drv1alpha1.GroupVersionKind{
 			Group:   "apps",
 			Version: "v1",
 			Kind:    "Deployment",
 		}
-		daemonSetGVK := udsdrv1alpha1.GroupVersionKind{
+		daemonSetGVK := drv1alpha1.GroupVersionKind{
 			Group:   "apps",
 			Version: "v1",
 			Kind:    "DaemonSet",
 		}
-		statefulSet := udsdrv1alpha1.GroupVersionKind{
+		statefulSet := drv1alpha1.GroupVersionKind{
 			Group:   "apps",
 			Version: "v1",
 			Kind:    "StatefulSet",
 		}
-		pvcGVK := udsdrv1alpha1.GroupVersionKind{
+		pvcGVK := drv1alpha1.GroupVersionKind{
 			Version: "v1",
 			Kind:    "PersistentVolumeClaim",
 		}
-		pvGVK := udsdrv1alpha1.GroupVersionKind{
+		pvGVK := drv1alpha1.GroupVersionKind{
 			Version: "v1",
 			Kind:    "PersistentVolume",
 		}
-		serviceGVK := udsdrv1alpha1.GroupVersionKind{
+		serviceGVK := drv1alpha1.GroupVersionKind{
 			Version: "v1",
 			Kind:    "Service",
 		}
 
-		defaultWhiteList := []udsdrv1alpha1.GroupVersionKind{deploymentGVK, serviceGVK, daemonSetGVK, statefulSet, pvcGVK, pvGVK}
+		defaultWhiteList := []drv1alpha1.GroupVersionKind{deploymentGVK, serviceGVK, daemonSetGVK, statefulSet, pvcGVK, pvGVK}
 
 		fConfig.WhiteListFilter.KindWhiteList = append(fConfig.WhiteListFilter.KindWhiteList, defaultWhiteList...)
 
 	*/
 	for _, gvk := range fConfig.WhiteListFilter.KindWhiteList {
-		vd := udsdrv1alpha1.VariableDelete{
+		vd := drv1alpha1.VariableDelete{
 			Kind: &gvk,
-			// KeyValueDelete: []udsdrv1alpha1.VariableKey{"metadata,resourceVersion", "metadata,uid"},
-			KeyValueDelete: []udsdrv1alpha1.VariableKey{"metadata,uid"},
+			// KeyValueDelete: []drv1alpha1.VariableKey{"metadata,resourceVersion", "metadata,uid"},
+			KeyValueDelete: []drv1alpha1.VariableKey{"metadata,uid"},
 		}
 		if fConfig.VariableDeleteFilter == nil {
-			vdFilterConfig := udsdrv1alpha1.VariableDeleteFilterConfig{}
+			vdFilterConfig := drv1alpha1.VariableDeleteFilterConfig{}
 			fConfig.VariableDeleteFilter = &vdFilterConfig
 		}
 		fConfig.VariableDeleteFilter.KindDeleteList = append(fConfig.VariableDeleteFilter.KindDeleteList, vd)
 	}
 	for _, gvkObj := range fConfig.WhiteListFilter.ObjectWhiteList {
-		vd := udsdrv1alpha1.VariableDelete{
+		vd := drv1alpha1.VariableDelete{
 			Object:         &gvkObj,
-			KeyValueDelete: []udsdrv1alpha1.VariableKey{"metadata,uid"},
+			KeyValueDelete: []drv1alpha1.VariableKey{"metadata,uid"},
 		}
 		if fConfig.VariableDeleteFilter == nil {
-			vdFilterConfig := udsdrv1alpha1.VariableDeleteFilterConfig{}
+			vdFilterConfig := drv1alpha1.VariableDeleteFilterConfig{}
 			fConfig.VariableDeleteFilter = &vdFilterConfig
 		}
 		fConfig.VariableDeleteFilter.ObjectDeleteList = append(fConfig.VariableDeleteFilter.ObjectDeleteList, vd)

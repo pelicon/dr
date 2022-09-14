@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/wait"
 	k8sworkqueue "k8s.io/client-go/util/workqueue"
@@ -24,7 +24,7 @@ type StatusUpdater struct {
 
 type statusToUpdate struct {
 	drNamespaceCRNamespace, drNamespaceCRName string
-	status                                    *udsdrv1alpha1.DRNamespaceStatus
+	status                                    *drv1alpha1.DRNamespaceStatus
 }
 
 func NewStatusUpdater(ctx context.Context, client client.Client) *StatusUpdater {
@@ -35,14 +35,14 @@ func NewStatusUpdater(ctx context.Context, client client.Client) *StatusUpdater 
 	}
 }
 
-func (cu *StatusUpdater) UpdateCondition(drNamespaceCRNamespace, drNamespaceCRName string, conditionNeedUpdate udsdrv1alpha1.SyncedCondition) {
+func (cu *StatusUpdater) UpdateCondition(drNamespaceCRNamespace, drNamespaceCRName string, conditionNeedUpdate drv1alpha1.SyncedCondition) {
 	name, namespace := drNamespaceCRName, drNamespaceCRNamespace
 	objectKey := k8sruntimeclient.ObjectKey{
 		Namespace: namespace,
 		Name:      name,
 	}
 
-	nsInstance := &udsdrv1alpha1.DRNamespace{}
+	nsInstance := &drv1alpha1.DRNamespace{}
 	if err := cu.client.Get(cu.ctx, objectKey, nsInstance); err != nil {
 		logger.WithError(err).Error("Failed to get DRNS instance")
 		return
@@ -61,13 +61,13 @@ func (cu *StatusUpdater) UpdateCondition(drNamespaceCRNamespace, drNamespaceCRNa
 		conditionNeedUpdate.LastSyncedStatus)
 
 	if status.SyncedConditions == nil {
-		status.SyncedConditions = make(map[string]udsdrv1alpha1.SyncedCondition)
+		status.SyncedConditions = make(map[string]drv1alpha1.SyncedCondition)
 	}
 	status.SyncedConditions[mapKey] = conditionNeedUpdate
 	cu.UpdateStatus(drNamespaceCRNamespace, drNamespaceCRName, status)
 }
 
-func (cu *StatusUpdater) UpdateStatus(drNamespaceCRNamespace, drNamespaceCRName string, status *udsdrv1alpha1.DRNamespaceStatus) {
+func (cu *StatusUpdater) UpdateStatus(drNamespaceCRNamespace, drNamespaceCRName string, status *drv1alpha1.DRNamespaceStatus) {
 	statusToUpdateInstance := &statusToUpdate{
 		drNamespaceCRNamespace: drNamespaceCRNamespace,
 		drNamespaceCRName:      drNamespaceCRName,
@@ -102,7 +102,7 @@ func (cu *StatusUpdater) run(ctx context.Context) {
 		Namespace: namespace,
 		Name:      name,
 	}
-	nsInstance := &udsdrv1alpha1.DRNamespace{}
+	nsInstance := &drv1alpha1.DRNamespace{}
 	if err := cu.client.Get(cu.ctx, objectKey, nsInstance); err != nil {
 		logger.WithError(err).Error("Failed to get DRNS instance")
 		return

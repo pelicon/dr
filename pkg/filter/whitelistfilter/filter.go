@@ -3,35 +3,35 @@ package whitelistfilter
 import (
 	"sync"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	log "github.com/sirupsen/logrus"
 )
 
-var FilterName udsdrv1alpha1.FilterName = "WhiteListFilter"
+var FilterName drv1alpha1.FilterName = "WhiteListFilter"
 var (
 	logger = log.WithField("module", "whitelistfilter")
 )
 
 type WhiteListFilter struct {
 	*sync.Mutex
-	udsdrv1alpha1.DRFilterConfig
+	drv1alpha1.DRFilterConfig
 }
 
-func New() udsdrv1alpha1.Filter {
+func New() drv1alpha1.Filter {
 	return &WhiteListFilter{
 		Mutex: &sync.Mutex{},
 	}
 }
 
-func (wlf *WhiteListFilter) Out(objr *udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+func (wlf *WhiteListFilter) Out(objr *drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 	if wlf.DRFilterConfig.WhiteListFilter == nil {
 		logger.Debugf("whitelist config is nil, resource: %+v", objr.Unstructured)
-		return nil, udsdrv1alpha1.ErrNoPassFilter
+		return nil, drv1alpha1.ErrNoPassFilter
 	}
 
 	for _, gvk := range wlf.DRFilterConfig.WhiteListFilter.KindWhiteList {
-		logger.Infof("gvk of whitelist: %v, gvk of resource: %+v", gvk, udsdrv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()))
-		if udsdrv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == gvk {
+		logger.Infof("gvk of whitelist: %v, gvk of resource: %+v", gvk, drv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()))
+		if drv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == gvk {
 			logger.Debugf("resource in whitelist, resource: %+v", objr.Unstructured)
 			return objr, nil
 		}
@@ -43,14 +43,14 @@ func (wlf *WhiteListFilter) Out(objr *udsdrv1alpha1.ObjResource) (*udsdrv1alpha1
 		}
 	}
 	logger.Debugf("resource not in whitelist, resource: %+v", objr.Unstructured)
-	return nil, udsdrv1alpha1.ErrNoPassFilter
+	return nil, drv1alpha1.ErrNoPassFilter
 }
 
-func (wlf *WhiteListFilter) In(*udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+func (wlf *WhiteListFilter) In(*drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 	return nil, nil
 }
 
-func (wlf *WhiteListFilter) SetConfig(drconf *udsdrv1alpha1.DRFilterConfig) error {
+func (wlf *WhiteListFilter) SetConfig(drconf *drv1alpha1.DRFilterConfig) error {
 	wlf.Lock()
 	defer wlf.Unlock()
 

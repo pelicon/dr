@@ -3,7 +3,7 @@ package statefulset
 import (
 	"reflect"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	"github.com/pelicon/dr/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,10 +20,10 @@ var (
 	logger = log.WithField("module", "statefulSet_dependency_checker")
 )
 
-func (dc *DependencyChecker) DependencyCheck(obj *udsdrv1alpha1.ObjResource) ([]*udsdrv1alpha1.ObjResource, error) {
+func (dc *DependencyChecker) DependencyCheck(obj *drv1alpha1.ObjResource) ([]*drv1alpha1.ObjResource, error) {
 	dependenciesUnstructured := make([]unstructured.Unstructured, 0)
 	//todo
-	podList, err := dc.client.Resource(udsdrv1alpha1.PodGVR).List(v1.ListOptions{})
+	podList, err := dc.client.Resource(drv1alpha1.PodGVR).List(v1.ListOptions{})
 	if err != nil {
 		logger.Errorf("list pod err: %v, resource: %+v", err.Error(), obj.Unstructured)
 		return nil, err
@@ -41,9 +41,9 @@ func (dc *DependencyChecker) DependencyCheck(obj *udsdrv1alpha1.ObjResource) ([]
 
 	logger.Debugf("dependenciesUnstructured are: %+v", dependenciesUnstructured)
 
-	dependenciesObjResource := make([]*udsdrv1alpha1.ObjResource, 0)
+	dependenciesObjResource := make([]*drv1alpha1.ObjResource, 0)
 	for _, u := range dependenciesUnstructured {
-		objr := udsdrv1alpha1.ObjResource{
+		objr := drv1alpha1.ObjResource{
 			GVR:          utils.GVK2GVR(u.GroupVersionKind()),
 			Action:       obj.Action,
 			Unstructured: &u,
@@ -103,7 +103,7 @@ func checkPodVolumesDependency(client dynamic.Interface, pod unstructured.Unstru
 		claimNameMappedValue := pvcValue.MapIndex(reflect.ValueOf("claimName"))
 		claimNameStr := reflect.ValueOf(claimNameMappedValue.Interface()).String()
 		logger.Debugf("claimName is %+v", claimNameStr)
-		dependentPVC, err := client.Resource(udsdrv1alpha1.PersistentVolumeClaimGVR).Namespace(pod.GetNamespace()).Get(claimNameStr, v1.GetOptions{})
+		dependentPVC, err := client.Resource(drv1alpha1.PersistentVolumeClaimGVR).Namespace(pod.GetNamespace()).Get(claimNameStr, v1.GetOptions{})
 		if err != nil {
 			logger.Errorf("get dependentPVC for pod err: %v, pod: %+v", err.Error(), pod)
 			return nil, err
@@ -116,11 +116,11 @@ func checkPodVolumesDependency(client dynamic.Interface, pod unstructured.Unstru
 	return dependentPVCList, nil
 }
 
-func (dc *DependencyChecker) ShouldCheck(obj *udsdrv1alpha1.ObjResource) bool {
-	return *obj.GVR == udsdrv1alpha1.StatefulSetGVR
+func (dc *DependencyChecker) ShouldCheck(obj *drv1alpha1.ObjResource) bool {
+	return *obj.GVR == drv1alpha1.StatefulSetGVR
 }
 
-func NewDependencyChecker(client dynamic.Interface) udsdrv1alpha1.DependencyChecker {
+func NewDependencyChecker(client dynamic.Interface) drv1alpha1.DependencyChecker {
 	return &DependencyChecker{
 		client: client,
 	}

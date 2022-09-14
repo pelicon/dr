@@ -7,32 +7,32 @@ import (
 	"strings"
 	"sync"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-var FilterName udsdrv1alpha1.FilterName = "VariableMappingFilter"
+var FilterName drv1alpha1.FilterName = "VariableMappingFilter"
 var (
 	logger = log.WithField("module", "variablemappingfilter")
 )
 
 type VariableMappingFilter struct {
 	*sync.Mutex
-	udsdrv1alpha1.DRFilterConfig
+	drv1alpha1.DRFilterConfig
 }
 
-func New() udsdrv1alpha1.Filter {
+func New() drv1alpha1.Filter {
 	return &VariableMappingFilter{
 		Mutex: &sync.Mutex{},
 	}
 }
 
-// func (vmf *VariableMappingFilter) Out(objr *udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+// func (vmf *VariableMappingFilter) Out(objr *drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 // 	logger.Infof("variable mapping configs: %+v", vmf.DRFilterConfig.VariableMappingFilter)
 // 	for _, kindVariableMappings := range vmf.DRFilterConfig.VariableMappingFilter.KindVariableMappings {
-// 		logger.Infof("kindvariablemapping.kind: %+v, objr.gvk: %+v", kindVariableMappings.Kind, udsdrv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()))
-// 		if udsdrv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == *kindVariableMappings.Kind {
+// 		logger.Infof("kindvariablemapping.kind: %+v, objr.gvk: %+v", kindVariableMappings.Kind, drv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()))
+// 		if drv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == *kindVariableMappings.Kind {
 // 			logger.Infof("keyvaluemappings: %+v", kindVariableMappings.KeyValueMappings)
 // 			for k, v := range kindVariableMappings.KeyValueMappings {
 // 				logger.Infof("keyvaluemappings, key: %v, value: %v", k, v)
@@ -43,7 +43,7 @@ func New() udsdrv1alpha1.Filter {
 // 							return nil, err
 // 						}
 // 					// switch v.VariableType {
-// 					// case udsdrv1alpha1.VariableTypeStr:
+// 					// case drv1alpha1.VariableTypeStr:
 // 					// 	oldStrValue, ok, err := unstructured.NestedString(objr.Unstructured.Object, path...)
 // 					// 	if err != nil {
 // 					// 		return nil, err
@@ -54,7 +54,7 @@ func New() udsdrv1alpha1.Filter {
 // 					// 			return nil, err
 // 					// 		}
 // 					// 	}
-// 					// case udsdrv1alpha1.VariableTypeBool:
+// 					// case drv1alpha1.VariableTypeBool:
 // 					// 	newBoolValue, err := strconv.ParseBool(v.ToSubStr)
 // 					// 	if err != nil {
 // 					// 		return nil, err
@@ -62,7 +62,7 @@ func New() udsdrv1alpha1.Filter {
 // 					// 	if err := unstructured.SetNestedField(objr.Unstructured.Object, newBoolValue, path...); err != nil {
 // 					// 		return nil, err
 // 					// 	}
-// 					// case udsdrv1alpha1.VariableTypeInt:
+// 					// case drv1alpha1.VariableTypeInt:
 // 					// 	newIntValue, err := strconv.Atoi(v.ToSubStr)
 // 					// 	if err != nil {
 // 					// 		return nil, err
@@ -70,7 +70,7 @@ func New() udsdrv1alpha1.Filter {
 // 					// 	if err := unstructured.SetNestedField(objr.Unstructured.Object, int64(newIntValue), path...); err != nil {
 // 					// 		return nil, err
 // 					// 	}
-// 					// case udsdrv1alpha1.VariableTypeFloat:
+// 					// case drv1alpha1.VariableTypeFloat:
 // 					// 	newFloatValue, err := strconv.ParseFloat(v.ToSubStr, 64)
 // 					// 	if err != nil {
 // 					// 		return nil, err
@@ -86,7 +86,7 @@ func New() udsdrv1alpha1.Filter {
 // 		}
 // 	}
 // 	for _, objectVariableMappings := range vmf.DRFilterConfig.VariableMappingFilter.ObjectVariableMappings {
-// 		if (udsdrv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == *objectVariableMappings.Kind) &&
+// 		if (drv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == *objectVariableMappings.Kind) &&
 // 			(objr.Unstructured.GetNamespace() == objectVariableMappings.Object.ObjectKey.Namespace) &&
 // 			(objr.Unstructured.GetName() == objectVariableMappings.Object.ObjectKey.Name) {
 // 			for k, v := range objectVariableMappings.KeyValueMappings {
@@ -102,9 +102,9 @@ func New() udsdrv1alpha1.Filter {
 // 	return objr, nil
 // }
 
-func setMappingValue(v udsdrv1alpha1.VariableMapping, path []string, m map[string]interface{}) error {
+func setMappingValue(v drv1alpha1.VariableMapping, path []string, m map[string]interface{}) error {
 	switch v.VariableType {
-	case udsdrv1alpha1.VariableTypeStr:
+	case drv1alpha1.VariableTypeStr:
 		oldStrValue, ok, err := unstructured.NestedString(m, path...)
 		if err != nil {
 			return err
@@ -115,7 +115,7 @@ func setMappingValue(v udsdrv1alpha1.VariableMapping, path []string, m map[strin
 				return err
 			}
 		}
-	case udsdrv1alpha1.VariableTypeBool:
+	case drv1alpha1.VariableTypeBool:
 		newBoolValue, err := strconv.ParseBool(v.ToSubStr)
 		if err != nil {
 			return err
@@ -123,7 +123,7 @@ func setMappingValue(v udsdrv1alpha1.VariableMapping, path []string, m map[strin
 		if err := unstructured.SetNestedField(m, newBoolValue, path...); err != nil {
 			return err
 		}
-	case udsdrv1alpha1.VariableTypeInt:
+	case drv1alpha1.VariableTypeInt:
 		newIntValue, err := strconv.Atoi(v.ToSubStr)
 		if err != nil {
 			return err
@@ -131,7 +131,7 @@ func setMappingValue(v udsdrv1alpha1.VariableMapping, path []string, m map[strin
 		if err := unstructured.SetNestedField(m, int64(newIntValue), path...); err != nil {
 			return err
 		}
-	case udsdrv1alpha1.VariableTypeFloat:
+	case drv1alpha1.VariableTypeFloat:
 		newFloatValue, err := strconv.ParseFloat(v.ToSubStr, 64)
 		if err != nil {
 			return err
@@ -145,9 +145,9 @@ func setMappingValue(v udsdrv1alpha1.VariableMapping, path []string, m map[strin
 	return nil
 }
 
-func (vmf *VariableMappingFilter) Out(objr *udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+func (vmf *VariableMappingFilter) Out(objr *drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 	for _, kindVariableMappings := range vmf.DRFilterConfig.VariableMappingFilter.KindVariableMappings {
-		if udsdrv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == *kindVariableMappings.Kind {
+		if drv1alpha1.GroupVersionKind(objr.Unstructured.GroupVersionKind()) == *kindVariableMappings.Kind {
 			for k, v := range kindVariableMappings.KeyValueMappings {
 				path := strings.Split(string(k), ",")
 				// if _, exist, _ := unstructured.NestedFieldCopy(objr.Unstructured.Object, path...); exist {
@@ -164,7 +164,7 @@ func (vmf *VariableMappingFilter) Out(objr *udsdrv1alpha1.ObjResource) (*udsdrv1
 	return objr, nil
 }
 
-func iteratePath(path []string, v *udsdrv1alpha1.VariableMapping, inf interface{}) error {
+func iteratePath(path []string, v *drv1alpha1.VariableMapping, inf interface{}) error {
 
 	infType := reflect.TypeOf(inf)
 	logger.Infof("type of interface:%v", infType)
@@ -251,11 +251,11 @@ func iteratePath(path []string, v *udsdrv1alpha1.VariableMapping, inf interface{
 	}
 }
 
-func (vmf *VariableMappingFilter) In(*udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+func (vmf *VariableMappingFilter) In(*drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 	return nil, nil
 }
 
-func (vmf *VariableMappingFilter) SetConfig(drconf *udsdrv1alpha1.DRFilterConfig) error {
+func (vmf *VariableMappingFilter) SetConfig(drconf *drv1alpha1.DRFilterConfig) error {
 	vmf.Lock()
 	defer vmf.Unlock()
 

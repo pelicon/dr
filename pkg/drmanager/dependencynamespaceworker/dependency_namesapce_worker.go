@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	dcpvc "github.com/pelicon/dr/pkg/drmanager/dependencynamespaceworker/dependencychecker/persistentvolumeclaim"
 	dcsts "github.com/pelicon/dr/pkg/drmanager/dependencynamespaceworker/dependencychecker/statefulset"
 	"github.com/pelicon/dr/pkg/filter"
@@ -29,28 +29,28 @@ type DependencyNamesapceWorker struct {
 	ctx                 context.Context
 	nsCRName            string
 	nsCRNamespace       string
-	Namespace           udsdrv1alpha1.Namespace
+	Namespace           drv1alpha1.Namespace
 	Filters             *filter.FilterAggregation
 	ResourceManager     resourcemanager.ResourceManager
 	TransportManager    transportmanager.TransportManager
 	ObjQueue            workqueue.RateLimitingInterface
 	k8sControllerClient k8sclient.Client
-	transportAdapter    udsdrv1alpha1.TransportAdapter
-	collectorType       udsdrv1alpha1.ResourceCollectorType
+	transportAdapter    drv1alpha1.TransportAdapter
+	collectorType       drv1alpha1.ResourceCollectorType
 	dependencies        map[types.UID]struct{}
-	dependencyChecks    []udsdrv1alpha1.DependencyChecker
+	dependencyChecks    []drv1alpha1.DependencyChecker
 	statusUpdater       *namespacecrstatusupdater.StatusUpdater
 }
 
-func (dnw *DependencyNamesapceWorker) filter(obj *udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+func (dnw *DependencyNamesapceWorker) filter(obj *drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 	var (
 		err       error
-		objPassed *udsdrv1alpha1.ObjResource
+		objPassed *drv1alpha1.ObjResource
 	)
 
 	for _, filter := range dnw.Filters.Filters {
 		if objPassed, err = filter.Out(obj); err != nil {
-			if err == udsdrv1alpha1.ErrNoPassFilter {
+			if err == drv1alpha1.ErrNoPassFilter {
 				return nil, nil
 			}
 			logger.WithError(err).Errorf("resource %s(namespace:%s name:%s) failed to pass filter",
@@ -68,11 +68,11 @@ func NewDependencyNamesapceWorker(
 	nsCRName string,
 	nsCRNamespace string,
 	k8sControllerClient k8sclient.Client,
-	transportAdapter udsdrv1alpha1.TransportAdapter,
-	collectorType udsdrv1alpha1.ResourceCollectorType,
-	namespace udsdrv1alpha1.Namespace,
+	transportAdapter drv1alpha1.TransportAdapter,
+	collectorType drv1alpha1.ResourceCollectorType,
+	namespace drv1alpha1.Namespace,
 	statusUpdater *namespacecrstatusupdater.StatusUpdater,
-) udsdrv1alpha1.NamesapceWorker {
+) drv1alpha1.NamesapceWorker {
 	rateLimiter := workqueue.NewItemExponentialFailureRateLimiter(time.Second, time.Second*5)
 	dnw := &DependencyNamesapceWorker{
 		ctx:                 ctx,
@@ -94,7 +94,7 @@ func NewDependencyNamesapceWorker(
 		logger.WithError(err).Panic("failed to get client")
 	}
 
-	dnw.dependencyChecks = []udsdrv1alpha1.DependencyChecker{
+	dnw.dependencyChecks = []drv1alpha1.DependencyChecker{
 		dcpvc.NewDependencyChecker(dClient),
 		dcsts.NewDependencyChecker(dClient),
 	}
@@ -102,7 +102,7 @@ func NewDependencyNamesapceWorker(
 	return dnw
 }
 
-func (dnw *DependencyNamesapceWorker) namespacedStatusUpdateFunc(condition udsdrv1alpha1.SyncedCondition) {
+func (dnw *DependencyNamesapceWorker) namespacedStatusUpdateFunc(condition drv1alpha1.SyncedCondition) {
 	dnw.statusUpdater.UpdateCondition(dnw.nsCRNamespace, dnw.nsCRName, condition)
 }
 
@@ -152,9 +152,9 @@ func (dnw *DependencyNamesapceWorker) run(ctx context.Context) {
 		return
 	}
 
-	obj, canConvert := untypedObj.(*udsdrv1alpha1.ObjResource)
+	obj, canConvert := untypedObj.(*drv1alpha1.ObjResource)
 	if !canConvert {
-		logger.Errorf("[DNW] resource %s(namespace:%s name:%s) can not be converted to *udsdrv1alpha1.ObjResource",
+		logger.Errorf("[DNW] resource %s(namespace:%s name:%s) can not be converted to *drv1alpha1.ObjResource",
 			obj.GVR.Resource,
 			obj.Unstructured.GetNamespace(),
 			obj.Unstructured.GetName())
@@ -184,7 +184,7 @@ func (dnw *DependencyNamesapceWorker) run(ctx context.Context) {
 				obj.Unstructured.GetName())
 			return
 		}
-		if obj.Action == udsdrv1alpha1.ObjectActionDelete {
+		if obj.Action == drv1alpha1.ObjectActionDelete {
 			logger.Debugf("[DNW] delete dependencies for resource %s(namespace:%s name:%s), because it will be deleted",
 				obj.GVR.Resource,
 				obj.Unstructured.GetNamespace(),
@@ -193,7 +193,7 @@ func (dnw *DependencyNamesapceWorker) run(ctx context.Context) {
 		}
 
 		// deal with dependency
-		if obj.Action == udsdrv1alpha1.ObjectActionCreate || obj.Action == udsdrv1alpha1.ObjectActionUpdate {
+		if obj.Action == drv1alpha1.ObjectActionCreate || obj.Action == drv1alpha1.ObjectActionUpdate {
 			logger.Debugf("[DNW] checking dependencies for resource %s(namespace:%s name:%s)",
 				obj.GVR.Resource,
 				obj.Unstructured.GetNamespace(),
@@ -224,8 +224,8 @@ func (dnw *DependencyNamesapceWorker) run(ctx context.Context) {
 	}
 }
 
-func (dnw *DependencyNamesapceWorker) getNotTransportedDependencies(objs []*udsdrv1alpha1.ObjResource) []*udsdrv1alpha1.ObjResource {
-	npd := make([]*udsdrv1alpha1.ObjResource, 0)
+func (dnw *DependencyNamesapceWorker) getNotTransportedDependencies(objs []*drv1alpha1.ObjResource) []*drv1alpha1.ObjResource {
+	npd := make([]*drv1alpha1.ObjResource, 0)
 	for _, obj := range objs {
 		if !dnw.TransportManager.IsResourceTransported(obj) {
 			logger.Debugf("resource %s(namespace:%s name:%s) was not transported as a dependency",
@@ -239,16 +239,16 @@ func (dnw *DependencyNamesapceWorker) getNotTransportedDependencies(objs []*udsd
 	return npd
 }
 
-func (dnw *DependencyNamesapceWorker) requeueDependencies(objs []*udsdrv1alpha1.ObjResource) {
+func (dnw *DependencyNamesapceWorker) requeueDependencies(objs []*drv1alpha1.ObjResource) {
 	for _, obj := range objs {
 		dnw.ObjQueue.AddRateLimited(obj)
 		dnw.dependencies[obj.Unstructured.GetUID()] = struct{}{}
 	}
 }
 
-func (dnw *DependencyNamesapceWorker) getDependencies(obj *udsdrv1alpha1.ObjResource) ([]*udsdrv1alpha1.ObjResource, error) {
+func (dnw *DependencyNamesapceWorker) getDependencies(obj *drv1alpha1.ObjResource) ([]*drv1alpha1.ObjResource, error) {
 	logger.Debugf("going checking dependencies for resource: %+v", obj.Unstructured)
-	deps := make([]*udsdrv1alpha1.ObjResource, 0)
+	deps := make([]*drv1alpha1.ObjResource, 0)
 	for _, dpc := range dnw.dependencyChecks {
 		if dpc.ShouldCheck(obj) {
 			if dps, err := dpc.DependencyCheck(obj); err != nil {
@@ -262,14 +262,14 @@ func (dnw *DependencyNamesapceWorker) getDependencies(obj *udsdrv1alpha1.ObjReso
 	return deps, nil
 }
 
-func (dnw *DependencyNamesapceWorker) getObjectNamesapce(obj *udsdrv1alpha1.ObjResource) udsdrv1alpha1.Namespace {
-	namespace := udsdrv1alpha1.Namespace(obj.Unstructured.GetNamespace())
+func (dnw *DependencyNamesapceWorker) getObjectNamesapce(obj *drv1alpha1.ObjResource) drv1alpha1.Namespace {
+	namespace := drv1alpha1.Namespace(obj.Unstructured.GetNamespace())
 	if len(namespace) == 0 {
-		return udsdrv1alpha1.ClusterResourceDelegator
+		return drv1alpha1.ClusterResourceDelegator
 	}
 	return namespace
 }
 
-func GetObjResourceKey(obj *udsdrv1alpha1.ObjResource) string {
+func GetObjResourceKey(obj *drv1alpha1.ObjResource) string {
 	return fmt.Sprintf("%s-%s-%s", obj.GVR.String(), obj.Unstructured.GetNamespace(), obj.Unstructured.GetName())
 }

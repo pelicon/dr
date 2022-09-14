@@ -2,7 +2,7 @@ package drnamespace
 
 import (
 	"context"
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	"github.com/pelicon/dr/pkg/configs"
 	"github.com/pelicon/dr/pkg/drmanager"
 	"github.com/pelicon/dr/pkg/namespacecrstatusupdater"
@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	previousNamespaceCR map[string]*udsdrv1alpha1.DRNamespace
+	previousNamespaceCR map[string]*drv1alpha1.DRNamespace
 	logger              = log.WithField("module", "DRNamespaceController")
 )
 
@@ -39,7 +39,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	// 	return nil
 	// }
 	// cmWatcher.Run()
-	previousNamespaceCR = make(map[string]*udsdrv1alpha1.DRNamespace)
+	previousNamespaceCR = make(map[string]*drv1alpha1.DRNamespace)
 	cu := namespacecrstatusupdater.NewStatusUpdater(ctx, mgr.GetClient())
 	cu.Run()
 
@@ -47,8 +47,8 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 		ctx:                      ctx,
 		client:                   mgr.GetClient(),
 		scheme:                   mgr.GetScheme(),
-		drNamespaces:             make(map[udsdrv1alpha1.Namespace]drmanager.DRManager),
-		drNamespaceCtxCancelFunc: make(map[udsdrv1alpha1.Namespace]context.CancelFunc),
+		drNamespaces:             make(map[drv1alpha1.Namespace]drmanager.DRManager),
+		drNamespaceCtxCancelFunc: make(map[drv1alpha1.Namespace]context.CancelFunc),
 		statusUpdater:            cu,
 	}
 }
@@ -62,7 +62,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to primary resource DRNamespace
-	err = c.Watch(&source.Kind{Type: &udsdrv1alpha1.DRNamespace{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(&source.Kind{Type: &drv1alpha1.DRNamespace{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
 		return err
 	}
@@ -80,8 +80,8 @@ type ReconcileDRNamespace struct {
 	ctx                      context.Context
 	client                   client.Client
 	scheme                   *runtime.Scheme
-	drNamespaces             map[udsdrv1alpha1.Namespace]drmanager.DRManager
-	drNamespaceCtxCancelFunc map[udsdrv1alpha1.Namespace]context.CancelFunc
+	drNamespaces             map[drv1alpha1.Namespace]drmanager.DRManager
+	drNamespaceCtxCancelFunc map[drv1alpha1.Namespace]context.CancelFunc
 	queue                    k8sworkqueue.Interface
 	statusUpdater            *namespacecrstatusupdater.StatusUpdater
 }
@@ -91,7 +91,7 @@ func (r *ReconcileDRNamespace) Reconcile(request reconcile.Request) (reconcile.R
 	logger.WithField("Request.Namespace", request.Namespace).WithField("Request.Name", request.Name).Info("Reconcile DRNamespace")
 
 	// Fetch the DRNamespace instance
-	drNamespaceInstance := &udsdrv1alpha1.DRNamespace{}
+	drNamespaceInstance := &drv1alpha1.DRNamespace{}
 	err := r.client.Get(r.ctx, request.NamespacedName, drNamespaceInstance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -99,11 +99,11 @@ func (r *ReconcileDRNamespace) Reconcile(request reconcile.Request) (reconcile.R
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
 
-			if ctxCancel, exists := r.drNamespaceCtxCancelFunc[udsdrv1alpha1.Namespace(request.Namespace)]; exists {
+			if ctxCancel, exists := r.drNamespaceCtxCancelFunc[drv1alpha1.Namespace(request.Namespace)]; exists {
 				ctxCancel()
 			}
-			delete(r.drNamespaces, udsdrv1alpha1.Namespace(request.Namespace))
-			delete(r.drNamespaceCtxCancelFunc, udsdrv1alpha1.Namespace(request.Namespace))
+			delete(r.drNamespaces, drv1alpha1.Namespace(request.Namespace))
+			delete(r.drNamespaceCtxCancelFunc, drv1alpha1.Namespace(request.Namespace))
 			logger.Debugf("drNamespaceInstance not found, done clearing, namespace: %v", request.Namespace)
 
 			return reconcile.Result{}, nil
@@ -141,11 +141,11 @@ func (r *ReconcileDRNamespace) Reconcile(request reconcile.Request) (reconcile.R
 		}
 		logger.Debugf("drNamespaceInstance.Spec.DRFilterConfig: %+v", drNamespaceInstance.Spec.DRFilterConfig)
 		logger.Debugf("going to update filter config and restart")
-		configs.GetConfigContainer().UpdateFilterConfigToContainer(udsdrv1alpha1.Namespace(drNamespaceInstance.Namespace), &drNamespaceInstance.Spec.DRFilterConfig)
+		configs.GetConfigContainer().UpdateFilterConfigToContainer(drv1alpha1.Namespace(drNamespaceInstance.Namespace), &drNamespaceInstance.Spec.DRFilterConfig)
 		restartRequire = true
 	}
 
-	namespace := udsdrv1alpha1.Namespace(drNamespaceInstance.Namespace)
+	namespace := drv1alpha1.Namespace(drNamespaceInstance.Namespace)
 	if _, exists := previousNamespaceCR[drNamespaceInstance.Namespace]; !exists || drNamespaceInstance.Status.DRPairClusterName != drNamespaceInstance.Spec.DRPairClusterName {
 		drNamespaceInstance.Status.DRPairClusterName = drNamespaceInstance.Spec.DRPairClusterName
 		if err := configs.GetConfigContainer().UpdateNamespaceConfigedCluster(

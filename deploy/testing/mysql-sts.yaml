@@ -22,8 +22,8 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    dce.daocloud.io/app: dr-mysql-sts
-    dce.daocloud.io/component: dr-mysql-sts
+    pelicon.io/app: dr-mysql-sts
+    pelicon.io/component: dr-mysql-sts
   name: dr-mysql-sts
   namespace: default
 spec:
@@ -42,7 +42,7 @@ spec:
       securityContext:
         fsGroup: 999
       containers:
-      - image: 100.199.142.173/daocloud/mysql:5
+      - image: mysql:5
         args:
         - --ignore-db-dir=lost+found
         imagePullPolicy: Always
@@ -94,8 +94,8 @@ spec:
     kind: PersistentVolumeClaim
     metadata:
       labels:
-        dce.daocloud.io/app: dr-mysql-sts
-        dce.daocloud.io/component: dr-mysql-sts
+        pelicon.io/app: dr-mysql-sts
+        pelicon.io/component: dr-mysql-sts
       name: mydata
     spec:
       accessModes:
@@ -109,8 +109,8 @@ spec:
     kind: PersistentVolumeClaim
     metadata:
       labels:
-        dce.daocloud.io/app: dr-mysql-sts
-        dce.daocloud.io/component: dr-mysql-sts
+        pelicon.io/app: dr-mysql-sts
+        pelicon.io/component: dr-mysql-sts
       name: mybinlogs
     spec:
       accessModes:

@@ -4,67 +4,67 @@ import (
 	"fmt"
 	"sync"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 )
 
 type ConfigContainer interface {
-	GetFilterConfigs() map[udsdrv1alpha1.Namespace]*udsdrv1alpha1.DRFilterConfig
+	GetFilterConfigs() map[drv1alpha1.Namespace]*drv1alpha1.DRFilterConfig
 
-	GetClusterConfigs() map[udsdrv1alpha1.ClusterName]*udsdrv1alpha1.PairClusterSettings
+	GetClusterConfigs() map[drv1alpha1.ClusterName]*drv1alpha1.PairClusterSettings
 
 	UpdateClusterConfigToContainer(
-		clusterName udsdrv1alpha1.ClusterName,
-		clusterConfigs *udsdrv1alpha1.PairClusterSettings,
+		clusterName drv1alpha1.ClusterName,
+		clusterConfigs *drv1alpha1.PairClusterSettings,
 	) error
 
 	UpdateNamespaceConfigedCluster(
-		namespace udsdrv1alpha1.Namespace,
-		clusterName udsdrv1alpha1.ClusterName,
+		namespace drv1alpha1.Namespace,
+		clusterName drv1alpha1.ClusterName,
 	) error
 
 	UpdateFilterConfigToContainer(
-		namespace udsdrv1alpha1.Namespace,
-		filterConfigs *udsdrv1alpha1.DRFilterConfig,
+		namespace drv1alpha1.Namespace,
+		filterConfigs *drv1alpha1.DRFilterConfig,
 	)
 
 	RegClusterConfigListener(
-		namespace udsdrv1alpha1.Namespace,
-		fn func(*udsdrv1alpha1.PairClusterSettings),
+		namespace drv1alpha1.Namespace,
+		fn func(*drv1alpha1.PairClusterSettings),
 	) error
 
 	RegFilterConfigListener(
-		namespace udsdrv1alpha1.Namespace,
-		fn func(*udsdrv1alpha1.DRFilterConfig),
+		namespace drv1alpha1.Namespace,
+		fn func(*drv1alpha1.DRFilterConfig),
 	) error
 
 	NotifyFilterListeners(
-		namespace udsdrv1alpha1.Namespace,
-		filterConfig *udsdrv1alpha1.DRFilterConfig,
+		namespace drv1alpha1.Namespace,
+		filterConfig *drv1alpha1.DRFilterConfig,
 	) error
 
 	NotifyClusterConfigChange(
-		clusterName udsdrv1alpha1.ClusterName,
-		clusterConfigs *udsdrv1alpha1.PairClusterSettings,
+		clusterName drv1alpha1.ClusterName,
+		clusterConfigs *drv1alpha1.PairClusterSettings,
 	) error
 
 	NotifyNamespaceConfigedClusterChange(
-		namespace udsdrv1alpha1.Namespace,
-		clusterName udsdrv1alpha1.ClusterName,
+		namespace drv1alpha1.Namespace,
+		clusterName drv1alpha1.ClusterName,
 	) error
 }
 
 type drConfig struct {
 	*sync.RWMutex
 	// ClusterConfigs update by cluster CRDs
-	ClusterConfigs map[udsdrv1alpha1.ClusterName]*udsdrv1alpha1.PairClusterSettings
+	ClusterConfigs map[drv1alpha1.ClusterName]*drv1alpha1.PairClusterSettings
 	// NamespaceConfigedCluster mapping between DR namespace and cluster config
-	NamespaceConfigedCluster map[udsdrv1alpha1.Namespace]udsdrv1alpha1.ClusterName
+	NamespaceConfigedCluster map[drv1alpha1.Namespace]drv1alpha1.ClusterName
 	// FilterConfigs filter configs
-	FilterConfigs map[udsdrv1alpha1.Namespace]*udsdrv1alpha1.DRFilterConfig
+	FilterConfigs map[drv1alpha1.Namespace]*drv1alpha1.DRFilterConfig
 	// ClusterConfigListeners
-	ClusterConfigListeners map[udsdrv1alpha1.Namespace]func(*udsdrv1alpha1.PairClusterSettings)
+	ClusterConfigListeners map[drv1alpha1.Namespace]func(*drv1alpha1.PairClusterSettings)
 	// FilterConfigListeners
-	FilterConfigListeners map[udsdrv1alpha1.Namespace]func(*udsdrv1alpha1.DRFilterConfig)
+	FilterConfigListeners map[drv1alpha1.Namespace]func(*drv1alpha1.DRFilterConfig)
 }
 
 var (
@@ -78,11 +78,11 @@ func GetConfigContainer() ConfigContainer {
 func initConfigContainer() {
 	logger.Info("init config container")
 
-	clusterConfigs := make(map[udsdrv1alpha1.ClusterName]*udsdrv1alpha1.PairClusterSettings)
-	namespaceConfigedCluster := make(map[udsdrv1alpha1.Namespace]udsdrv1alpha1.ClusterName)
-	filterConfigs := make(map[udsdrv1alpha1.Namespace]*udsdrv1alpha1.DRFilterConfig)
-	clusterConfigListeners := make(map[udsdrv1alpha1.Namespace]func(*udsdrv1alpha1.PairClusterSettings))
-	filterConfigListeners := make(map[udsdrv1alpha1.Namespace]func(*udsdrv1alpha1.DRFilterConfig))
+	clusterConfigs := make(map[drv1alpha1.ClusterName]*drv1alpha1.PairClusterSettings)
+	namespaceConfigedCluster := make(map[drv1alpha1.Namespace]drv1alpha1.ClusterName)
+	filterConfigs := make(map[drv1alpha1.Namespace]*drv1alpha1.DRFilterConfig)
+	clusterConfigListeners := make(map[drv1alpha1.Namespace]func(*drv1alpha1.PairClusterSettings))
+	filterConfigListeners := make(map[drv1alpha1.Namespace]func(*drv1alpha1.DRFilterConfig))
 
 	drConfigContainer = &drConfig{
 		RWMutex:                  &sync.RWMutex{},
@@ -99,8 +99,8 @@ func init() {
 }
 
 func (drc *drConfig) UpdateClusterConfigToContainer(
-	clusterName udsdrv1alpha1.ClusterName,
-	clusterConfigs *udsdrv1alpha1.PairClusterSettings,
+	clusterName drv1alpha1.ClusterName,
+	clusterConfigs *drv1alpha1.PairClusterSettings,
 ) error {
 	logger.Debugf("updating cluster configs into container. cluster name: %s, config: %+v", clusterName, clusterConfigs)
 
@@ -119,7 +119,7 @@ func (drc *drConfig) UpdateClusterConfigToContainer(
 	return nil
 }
 
-func (drc *drConfig) UpdateNamespaceConfigedCluster(namespace udsdrv1alpha1.Namespace, clusterName udsdrv1alpha1.ClusterName) error {
+func (drc *drConfig) UpdateNamespaceConfigedCluster(namespace drv1alpha1.Namespace, clusterName drv1alpha1.ClusterName) error {
 	logger.Debugf("updating namespace configs into container. ns: %s, clustername: %+v", namespace, clusterName)
 
 	if len(namespace) == 0 {
@@ -139,8 +139,8 @@ func (drc *drConfig) UpdateNamespaceConfigedCluster(namespace udsdrv1alpha1.Name
 }
 
 func (drc *drConfig) UpdateFilterConfigToContainer(
-	namespace udsdrv1alpha1.Namespace,
-	filterConfigs *udsdrv1alpha1.DRFilterConfig,
+	namespace drv1alpha1.Namespace,
+	filterConfigs *drv1alpha1.DRFilterConfig,
 ) {
 	logger.Debugf("updating filter configs into container. ns: %s, config: %+v", namespace, filterConfigs)
 
@@ -151,7 +151,7 @@ func (drc *drConfig) UpdateFilterConfigToContainer(
 	drc.NotifyFilterListeners(namespace, filterConfigs)
 }
 
-func (drc *drConfig) RegClusterConfigListener(namespace udsdrv1alpha1.Namespace, fn func(*udsdrv1alpha1.PairClusterSettings)) error {
+func (drc *drConfig) RegClusterConfigListener(namespace drv1alpha1.Namespace, fn func(*drv1alpha1.PairClusterSettings)) error {
 	logger.Debugf("reg cluster config listener into container. ns: %s", namespace)
 
 	clusterName, exists := drc.NamespaceConfigedCluster[namespace]
@@ -168,7 +168,7 @@ func (drc *drConfig) RegClusterConfigListener(namespace udsdrv1alpha1.Namespace,
 	return nil
 }
 
-func (drc *drConfig) RegFilterConfigListener(namespace udsdrv1alpha1.Namespace, fn func(*udsdrv1alpha1.DRFilterConfig)) error {
+func (drc *drConfig) RegFilterConfigListener(namespace drv1alpha1.Namespace, fn func(*drv1alpha1.DRFilterConfig)) error {
 	logger.Debugf("reg filter config listener into container. ns: %s", namespace)
 
 	drc.Lock()
@@ -179,7 +179,7 @@ func (drc *drConfig) RegFilterConfigListener(namespace udsdrv1alpha1.Namespace, 
 	return nil
 }
 
-func (drc *drConfig) NotifyFilterListeners(namespace udsdrv1alpha1.Namespace, filterConfig *udsdrv1alpha1.DRFilterConfig) error {
+func (drc *drConfig) NotifyFilterListeners(namespace drv1alpha1.Namespace, filterConfig *drv1alpha1.DRFilterConfig) error {
 	logger.Debugf("notify filter listener. ns: %s, config: %+v", namespace, filterConfig)
 
 	drc.RLock()
@@ -191,13 +191,13 @@ func (drc *drConfig) NotifyFilterListeners(namespace udsdrv1alpha1.Namespace, fi
 	return nil
 }
 
-func (drc *drConfig) NotifyClusterConfigChange(clusterName udsdrv1alpha1.ClusterName, clusterConfigs *udsdrv1alpha1.PairClusterSettings) error {
+func (drc *drConfig) NotifyClusterConfigChange(clusterName drv1alpha1.ClusterName, clusterConfigs *drv1alpha1.PairClusterSettings) error {
 	logger.Debugf("notify cluster listener. ns: %s, config: %+v", clusterName, clusterConfigs)
 
 	drc.RLock()
 	defer drc.RUnlock()
 
-	relatedNamesapces := make([]udsdrv1alpha1.Namespace, 0)
+	relatedNamesapces := make([]drv1alpha1.Namespace, 0)
 	for namespace, cluster := range drc.NamespaceConfigedCluster {
 		if cluster == clusterName {
 			relatedNamesapces = append(relatedNamesapces, namespace)
@@ -220,7 +220,7 @@ func (drc *drConfig) NotifyClusterConfigChange(clusterName udsdrv1alpha1.Cluster
 	return nil
 }
 
-func (drc *drConfig) NotifyNamespaceConfigedClusterChange(namespace udsdrv1alpha1.Namespace, clusterName udsdrv1alpha1.ClusterName) error {
+func (drc *drConfig) NotifyNamespaceConfigedClusterChange(namespace drv1alpha1.Namespace, clusterName drv1alpha1.ClusterName) error {
 	logger.Debugf("notify namesapce listener. ns: %s, config: %+v", namespace, clusterName)
 
 	drc.RLock()
@@ -243,14 +243,14 @@ func (drc *drConfig) NotifyNamespaceConfigedClusterChange(namespace udsdrv1alpha
 	return nil
 }
 
-func (drc *drConfig) GetClusterConfigs() map[udsdrv1alpha1.ClusterName]*udsdrv1alpha1.PairClusterSettings {
+func (drc *drConfig) GetClusterConfigs() map[drv1alpha1.ClusterName]*drv1alpha1.PairClusterSettings {
 	drc.RLock()
 	defer drc.RUnlock()
 
 	return drc.ClusterConfigs
 }
 
-func (drc *drConfig) GetFilterConfigs() map[udsdrv1alpha1.Namespace]*udsdrv1alpha1.DRFilterConfig {
+func (drc *drConfig) GetFilterConfigs() map[drv1alpha1.Namespace]*drv1alpha1.DRFilterConfig {
 	drc.RLock()
 	defer drc.RUnlock()
 
