@@ -3,8 +3,6 @@ package kubeapiserver
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"sync"
 
 	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
@@ -55,25 +53,6 @@ func (kat *kubeApiserverTransporter) Transport(obj *drv1alpha1.ObjResource) erro
 		return fmt.Errorf("PairClusterSettings not set")
 	}
 	kubeApiserverTransportorSetting := kat.PairClusterSettings.KubeApiserverTransportorSetting
-	// certData, keyData, caData, err := readCertsFromPath()
-	// if err != nil {
-	// 	return err
-	// }
-	// logger.Infof("certData: %v, keyData: %v, caData: %v\n", certData, keyData, caData)
-	// clientCfg := rest.Config{
-	// 	// Host: kubeApiserverTransportorSetting.KubeApiServerHost,
-	// 	Host: "10.6.234.6:11081",
-	// 	TLSClientConfig: rest.TLSClientConfig{
-	// 		CertData: certData,
-	// 		KeyData:  keyData,
-	// 		CAData:   caData,
-	// 		// CertFile: "/etc/daocloud/dce/certs/kube-admin.crt",
-	// 		// KeyFile:  "/etc/daocloud/dce/certs/kube-admin.key",
-	// 		// CAFile:   "/etc/daocloud/dce/certs/ca.crt",
-	// 	},
-	// 	QPS:   20,
-	// 	Burst: 30,
-	// }
 	clientCfg := rest.Config{
 		Host: kubeApiserverTransportorSetting.KubeApiServerHost,
 		TLSClientConfig: rest.TLSClientConfig{
@@ -206,38 +185,4 @@ func prepareTransport(obj *drv1alpha1.ObjResource, originalUnstructured *unstruc
 			unstructured.SetNestedField(obj.Unstructured.Object, originalClaimRefUID, "spec", "claimRef", "uid")
 		}
 	}
-}
-
-func readCertsFromPath() (certData, keyData, caData []byte, err error) {
-	certFile, err := os.Open("/etc/daocloud/dce/certs/kube-admin.crt")
-	if err != nil {
-		return certData, keyData, caData, err
-	}
-	defer certFile.Close()
-	certData, err = ioutil.ReadAll(certFile)
-	if err != nil {
-		return certData, keyData, caData, err
-	}
-
-	keyFile, err := os.Open("/etc/daocloud/dce/certs/kube-admin.key")
-	if err != nil {
-		return certData, keyData, caData, err
-	}
-	defer keyFile.Close()
-	keyData, err = ioutil.ReadAll(keyFile)
-	if err != nil {
-		return certData, keyData, caData, err
-	}
-
-	caFile, err := os.Open("/etc/daocloud/dce/certs/ca.crt")
-	if err != nil {
-		return certData, keyData, caData, err
-	}
-	defer caFile.Close()
-	caData, err = ioutil.ReadAll(caFile)
-	if err != nil {
-		return certData, keyData, caData, err
-	}
-
-	return certData, keyData, caData, nil
 }

@@ -1,6 +1,6 @@
 // Package v1alpha1 contains API Schema definitions for the dr v1alpha1 API group
 // +k8s:deepcopy-gen=package,register
-// +groupName=dr.dce.daocloud.io
+// +groupName=dr.pelicon.io
 package v1alpha1
 
 import (
@@ -10,7 +10,7 @@ import (
 
 var (
 	// SchemeGroupVersion is group version used to register these objects
-	SchemeGroupVersion = schema.GroupVersion{Group: "dr.dce.daocloud.io", Version: "v1alpha1"}
+	SchemeGroupVersion = schema.GroupVersion{Group: "dr.pelicon.io", Version: "v1alpha1"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: SchemeGroupVersion}

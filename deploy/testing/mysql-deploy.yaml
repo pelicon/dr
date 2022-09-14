@@ -54,7 +54,7 @@ metadata:
   name: dr-mysql-deploy
   labels:
     app: dr-mysql-deploy
-    dce.daocloud.io/app: dr-mysql-deploy
+    pelicon.io/app: dr-mysql-deploy
 spec:
   selector:
     matchLabels:
@@ -71,7 +71,7 @@ spec:
         - name: dr-mysql-deploy
           args:
             - --ignore-db-dir=lost+found
-          image: 100.199.142.173/daocloud/mysql:5
+          image: mysql:5
           ports:
             - containerPort: 3306
           env:

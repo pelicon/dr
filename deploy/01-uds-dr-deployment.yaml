@@ -16,7 +16,7 @@ spec:
       serviceAccount: dce-pelicon-admin
       containers:
         - name: dce-pelicon-dr-controller
-          image: daocloud.io/daocloud/dce-pelicon-dr-controller:v0.1.0
+          image: pelicon.io/dr/dce-pelicon-dr-controller:v0.1.0
           imagePullPolicy: Always
           args:
           env:

@@ -1,5 +1,5 @@
 DOCKER_REGISTRY ?= 10.6.170.180/pelicon
-RELEASE_DOCKER_REGISTRY ?= daocloud.io/daocloud
+RELEASE_DOCKER_REGISTRY ?= pelicon.io/dr
 #RELEASE_DOCKER_REGISTRY ?= 10.6.170.180/pelicon
 
 GO_VERSION = $(shell go version)

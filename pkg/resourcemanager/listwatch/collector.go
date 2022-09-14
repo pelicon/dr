@@ -23,7 +23,7 @@ var (
 	ListWatchExcludeGroups = []string{
 		"coordination.k8s.io",
 		"events.k8s.io",
-		"dr.dce.daocloud.io",
+		"dr.pelicon.io",
 	}
 	ListWatchExcludeResources = []string{
 		"endpoints",
