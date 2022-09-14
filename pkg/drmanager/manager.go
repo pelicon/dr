@@ -2,7 +2,7 @@ package drmanager
 
 import (
 	"context"
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	//	"github.com/pelicon/dr/pkg/drmanager/basenamespaceworker"
 	"github.com/pelicon/dr/pkg/drmanager/dependencynamespaceworker"
 	"github.com/pelicon/dr/pkg/namespacecrstatusupdater"
@@ -10,18 +10,18 @@ import (
 )
 
 type DRManager interface {
-	AddNamespaceWorker(udsdrv1alpha1.Namespace)
+	AddNamespaceWorker(drv1alpha1.Namespace)
 }
 
 type BaseDrManager struct {
 	ctx                 context.Context
 	nsCRName            string
 	nsCRNamespace       string
-	conditionsCh        chan udsdrv1alpha1.SyncedCondition
+	conditionsCh        chan drv1alpha1.SyncedCondition
 	k8sControllerClient k8sclient.Client
-	transportAdapter    udsdrv1alpha1.TransportAdapter
-	collectorType       udsdrv1alpha1.ResourceCollectorType
-	NamespaceWorkers    map[udsdrv1alpha1.Namespace]udsdrv1alpha1.NamesapceWorker
+	transportAdapter    drv1alpha1.TransportAdapter
+	collectorType       drv1alpha1.ResourceCollectorType
+	NamespaceWorkers    map[drv1alpha1.Namespace]drv1alpha1.NamesapceWorker
 	statusUpdater       *namespacecrstatusupdater.StatusUpdater
 }
 
@@ -30,8 +30,8 @@ func NewDRManager(
 	nsCRName string,
 	nsCRNamespace string,
 	k8sControllerClient k8sclient.Client,
-	transportAdapter udsdrv1alpha1.TransportAdapter,
-	collectorType udsdrv1alpha1.ResourceCollectorType,
+	transportAdapter drv1alpha1.TransportAdapter,
+	collectorType drv1alpha1.ResourceCollectorType,
 	statusUpdater *namespacecrstatusupdater.StatusUpdater,
 ) DRManager {
 	return &BaseDrManager{
@@ -39,15 +39,15 @@ func NewDRManager(
 		nsCRName:            nsCRName,
 		nsCRNamespace:       nsCRNamespace,
 		k8sControllerClient: k8sControllerClient,
-		conditionsCh:        make(chan udsdrv1alpha1.SyncedCondition, 1),
+		conditionsCh:        make(chan drv1alpha1.SyncedCondition, 1),
 		transportAdapter:    transportAdapter,
 		collectorType:       collectorType,
-		NamespaceWorkers:    make(map[udsdrv1alpha1.Namespace]udsdrv1alpha1.NamesapceWorker),
+		NamespaceWorkers:    make(map[drv1alpha1.Namespace]drv1alpha1.NamesapceWorker),
 		statusUpdater:       statusUpdater,
 	}
 }
 
-func (bdm *BaseDrManager) AddNamespaceWorker(namespace udsdrv1alpha1.Namespace) {
+func (bdm *BaseDrManager) AddNamespaceWorker(namespace drv1alpha1.Namespace) {
 	namespaceWorker := dependencynamespaceworker.NewDependencyNamesapceWorker(
 		bdm.ctx,
 		bdm.nsCRName,

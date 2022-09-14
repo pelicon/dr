@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"time"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	k8sinformers "k8s.io/client-go/informers"
@@ -26,7 +26,7 @@ type ConfigWatcher interface {
 type baseConfigWatcher struct {
 	ctx                      context.Context
 	configMapInformerFactory k8sinformers.SharedInformerFactory
-	objectKeys               []udsdrv1alpha1.ObjectKey
+	objectKeys               []drv1alpha1.ObjectKey
 	client                   kubernetes.Interface
 }
 
@@ -44,7 +44,7 @@ func NewBaseConfigWatcher(ctx context.Context, resync time.Duration) (ConfigWatc
 		ctx:                      ctx,
 		client:                   client,
 		configMapInformerFactory: k8sinformers.NewSharedInformerFactory(client, resync),
-		objectKeys:               make([]udsdrv1alpha1.ObjectKey, 0),
+		objectKeys:               make([]drv1alpha1.ObjectKey, 0),
 	}, nil
 }
 
@@ -66,12 +66,12 @@ func (bcw *baseConfigWatcher) onAdd(untyped interface{}) {
 			return
 		}
 		logger.Debugf("add dr related configmap, namespace: %s, name: %s", cm.Namespace, cm.Name)
-		rawData := cm.Data[udsdrv1alpha1.DRFilterKeyName]
-		filterConfig := &udsdrv1alpha1.DRFilterConfig{}
+		rawData := cm.Data[drv1alpha1.DRFilterKeyName]
+		filterConfig := &drv1alpha1.DRFilterConfig{}
 		if err := json.Unmarshal([]byte(rawData), filterConfig); err == nil {
 			// currently cm should deploy at the same namespace with the dr namesapce,
 			// so we use cm.Namesapce directly
-			GetConfigContainer().UpdateFilterConfigToContainer(udsdrv1alpha1.Namespace(cm.Namespace), filterConfig)
+			GetConfigContainer().UpdateFilterConfigToContainer(drv1alpha1.Namespace(cm.Namespace), filterConfig)
 		} else {
 			logger.WithError(err).Errorf("failed to recognize dr configmap data body %s, name: %s namespace: %s", rawData, cm.Name, cm.Namespace)
 		}
@@ -85,12 +85,12 @@ func (bcw *baseConfigWatcher) onUpdate(_, untyped interface{}) {
 			return
 		}
 		logger.Debugf("update dr related configmap %+v", cm)
-		rawData := cm.Data[udsdrv1alpha1.DRFilterKeyName]
-		filterConfig := &udsdrv1alpha1.DRFilterConfig{}
+		rawData := cm.Data[drv1alpha1.DRFilterKeyName]
+		filterConfig := &drv1alpha1.DRFilterConfig{}
 		if err := json.Unmarshal([]byte(rawData), filterConfig); err == nil {
 			// currently cm should deploy at the same namespace with the dr namesapce,
 			// so we use cm.Namesapce directly
-			GetConfigContainer().UpdateFilterConfigToContainer(udsdrv1alpha1.Namespace(cm.Namespace), filterConfig)
+			GetConfigContainer().UpdateFilterConfigToContainer(drv1alpha1.Namespace(cm.Namespace), filterConfig)
 		} else {
 			logger.WithError(err).Errorf("failed to recognize dr configmap data body %s, name: %s namespace: %s", rawData, cm.Name, cm.Namespace)
 		}
@@ -101,14 +101,14 @@ func (bcw *baseConfigWatcher) onUpdate(_, untyped interface{}) {
 // TODO
 func (bcw *baseConfigWatcher) onDelete(obj interface{}) {}
 
-func (bcw *baseConfigWatcher) RegisterCM(obj udsdrv1alpha1.ObjectKey) {
+func (bcw *baseConfigWatcher) RegisterCM(obj drv1alpha1.ObjectKey) {
 	logger.Infof("reg dr related cm %+v", obj)
 	bcw.objectKeys = append(bcw.objectKeys, obj)
 }
 
-func (bcw *baseConfigWatcher) UnregisterCM(objToFind udsdrv1alpha1.ObjectKey) {
+func (bcw *baseConfigWatcher) UnregisterCM(objToFind drv1alpha1.ObjectKey) {
 	logger.Infof("reg dr related cm %+v", objToFind)
-	cmToKeep := make([]udsdrv1alpha1.ObjectKey, len(bcw.objectKeys))
+	cmToKeep := make([]drv1alpha1.ObjectKey, len(bcw.objectKeys))
 	for _, key := range bcw.objectKeys {
 		if reflect.DeepEqual(objToFind, key) {
 			continue
@@ -120,7 +120,7 @@ func (bcw *baseConfigWatcher) UnregisterCM(objToFind udsdrv1alpha1.ObjectKey) {
 }
 
 func isDRRelatedCM(cm *corev1.ConfigMap) bool {
-	if _, exists := cm.Data[udsdrv1alpha1.DRFilterKeyName]; exists {
+	if _, exists := cm.Data[drv1alpha1.DRFilterKeyName]; exists {
 		return true
 	}
 	return false

@@ -4,7 +4,7 @@ import (
 	"context"
 	//	"reflect"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	configs "github.com/pelicon/dr/pkg/configs"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -46,7 +46,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	// Watch for changes to primary resource DRCluster
-	err = c.Watch(&source.Kind{Type: &udsdrv1alpha1.DRCluster{}}, &handler.EnqueueRequestForObject{})
+	err = c.Watch(&source.Kind{Type: &drv1alpha1.DRCluster{}}, &handler.EnqueueRequestForObject{})
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ type ReconcileDRCluster struct {
 func (r *ReconcileDRCluster) Reconcile(request reconcile.Request) (reconcile.Result, error) {
 	logger.WithField("Request.Namespace", request.Namespace).WithField("Request.Name", request.Name).Info("Reconcile DRCluster")
 
-	drClusterInstance := &udsdrv1alpha1.DRCluster{}
+	drClusterInstance := &drv1alpha1.DRCluster{}
 	err := r.client.Get(r.ctx, request.NamespacedName, drClusterInstance)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -100,7 +100,7 @@ func (r *ReconcileDRCluster) Reconcile(request reconcile.Request) (reconcile.Res
 
 	// sync Active to namesapce CRDs
 	if drClusterInstance.Spec.Active != drClusterInstance.Status.Active {
-		drNamespaceListInstance := &udsdrv1alpha1.DRNamespaceList{}
+		drNamespaceListInstance := &drv1alpha1.DRNamespaceList{}
 		err := r.client.List(r.ctx, drNamespaceListInstance)
 		if err != nil {
 			if errors.IsNotFound(err) {
@@ -125,7 +125,7 @@ func (r *ReconcileDRCluster) Reconcile(request reconcile.Request) (reconcile.Res
 
 	// sync TransportAdapter to namesapce CRDs
 	if drClusterInstance.Spec.TransportAdapter != drClusterInstance.Status.TransportAdapter {
-		drNamespaceListInstance := &udsdrv1alpha1.DRNamespaceList{}
+		drNamespaceListInstance := &drv1alpha1.DRNamespaceList{}
 		err := r.client.List(r.ctx, drNamespaceListInstance)
 		if err != nil {
 			if errors.IsNotFound(err) {
@@ -145,7 +145,7 @@ func (r *ReconcileDRCluster) Reconcile(request reconcile.Request) (reconcile.Res
 
 	// sync CollectorType to namesapce CRDs
 	if drClusterInstance.Spec.CollectorType != drClusterInstance.Status.CollectorType {
-		drNamespaceListInstance := &udsdrv1alpha1.DRNamespaceList{}
+		drNamespaceListInstance := &drv1alpha1.DRNamespaceList{}
 		err := r.client.List(r.ctx, drNamespaceListInstance)
 		if err != nil {
 			if errors.IsNotFound(err) {
@@ -166,7 +166,7 @@ func (r *ReconcileDRCluster) Reconcile(request reconcile.Request) (reconcile.Res
 	// update cluster config
 	savedClusterConfig := configs.GetConfigContainer().GetClusterConfigs()
 	pairClusterSettings := &drClusterInstance.Spec.PairClusterSettings
-	clusterName := udsdrv1alpha1.ClusterName(drClusterInstance.Name)
+	clusterName := drv1alpha1.ClusterName(drClusterInstance.Name)
 	//	if !reflect.DeepEqual(savedClusterConfig[clusterName], pairClusterSettings) {
 	savedClusterConfig[clusterName] = pairClusterSettings.DeepCopy()
 	configs.GetConfigContainer().UpdateClusterConfigToContainer(clusterName, pairClusterSettings)
@@ -181,7 +181,7 @@ func (r *ReconcileDRCluster) Reconcile(request reconcile.Request) (reconcile.Res
 }
 
 func clearRelativeDRNamespaces(cli client.Client, ctx context.Context, clusterName string) error {
-	drNamespaceListInstance := &udsdrv1alpha1.DRNamespaceList{}
+	drNamespaceListInstance := &drv1alpha1.DRNamespaceList{}
 	errList := cli.List(ctx, drNamespaceListInstance)
 	if errList != nil {
 		if errors.IsNotFound(errList) {
@@ -204,7 +204,7 @@ func clearRelativeDRNamespaces(cli client.Client, ctx context.Context, clusterNa
 }
 
 func deActiveRelativeDRNamespaces(cli client.Client, ctx context.Context, clusterName string) error {
-	drNamespaceListInstance := &udsdrv1alpha1.DRNamespaceList{}
+	drNamespaceListInstance := &drv1alpha1.DRNamespaceList{}
 	errList := cli.List(ctx, drNamespaceListInstance)
 	if errList != nil {
 		if errors.IsNotFound(errList) {

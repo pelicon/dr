@@ -1,7 +1,7 @@
 package apis
 
 import (
-	"github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	"github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 )
 
 func init() {

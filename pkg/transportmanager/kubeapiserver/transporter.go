@@ -7,7 +7,7 @@ import (
 	"os"
 	"sync"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,12 +28,12 @@ type kubeApiserverTransporter struct {
 	*sync.Mutex
 	ctx                        context.Context
 	K8sControllerClient        k8sclient.Client
-	NamespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc
-	PairClusterSettings        *udsdrv1alpha1.PairClusterSettings
+	NamespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc
+	PairClusterSettings        *drv1alpha1.PairClusterSettings
 	ResourceVersionCache       map[types.UID]string
 }
 
-func New(ctx context.Context, k8sControllerClient k8sclient.Client, namespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc) *kubeApiserverTransporter {
+func New(ctx context.Context, k8sControllerClient k8sclient.Client, namespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc) *kubeApiserverTransporter {
 	return &kubeApiserverTransporter{
 		Mutex:                      &sync.Mutex{},
 		ctx:                        ctx,
@@ -43,14 +43,14 @@ func New(ctx context.Context, k8sControllerClient k8sclient.Client, namespacedSt
 	}
 }
 
-func (kat *kubeApiserverTransporter) SetConfig(cConfigs *udsdrv1alpha1.PairClusterSettings) {
+func (kat *kubeApiserverTransporter) SetConfig(cConfigs *drv1alpha1.PairClusterSettings) {
 	kat.Lock()
 	defer kat.Unlock()
 
 	kat.PairClusterSettings = cConfigs
 }
 
-func (kat *kubeApiserverTransporter) Transport(obj *udsdrv1alpha1.ObjResource) error {
+func (kat *kubeApiserverTransporter) Transport(obj *drv1alpha1.ObjResource) error {
 	if kat.PairClusterSettings == nil {
 		return fmt.Errorf("PairClusterSettings not set")
 	}
@@ -93,7 +93,7 @@ func (kat *kubeApiserverTransporter) Transport(obj *udsdrv1alpha1.ObjResource) e
 	// unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "annotations", "pv.kubernetes.io/bind-completed")
 	// fmt.Printf("Going transporting %v+\n", obj.Unstructured)
 	switch obj.Action {
-	case udsdrv1alpha1.ObjectActionCreate:
+	case drv1alpha1.ObjectActionCreate:
 		obj = prepareTransportWhenCreating(obj)
 		logger.Debugf("Going transporting %+v", obj.Unstructured)
 		_, err = client.Resource(*obj.GVR).
@@ -104,7 +104,7 @@ func (kat *kubeApiserverTransporter) Transport(obj *udsdrv1alpha1.ObjResource) e
 			return err
 		}
 		logger.Debugf("Successfully transported %+v", obj.Unstructured)
-	case udsdrv1alpha1.ObjectActionUpdate:
+	case drv1alpha1.ObjectActionUpdate:
 		logger.Debugf("Going updating %+v", obj.Unstructured)
 		originalUnstructured, getErr := client.Resource(*obj.GVR).Namespace(obj.Unstructured.GetNamespace()).Get(obj.Unstructured.GetName(), v1.GetOptions{})
 		if errors.IsNotFound(getErr) {
@@ -138,7 +138,7 @@ func (kat *kubeApiserverTransporter) Transport(obj *udsdrv1alpha1.ObjResource) e
 			return err
 		}
 		logger.Debugf("Successfully updated %+v", obj.Unstructured)
-	case udsdrv1alpha1.ObjectActionDelete:
+	case drv1alpha1.ObjectActionDelete:
 		logger.Debugf("Going deleting %+v", obj.Unstructured)
 		err = client.Resource(*obj.GVR).Namespace(obj.Unstructured.GetNamespace()).Delete(obj.Unstructured.GetName(), &v1.DeleteOptions{})
 		if err != nil {
@@ -150,30 +150,30 @@ func (kat *kubeApiserverTransporter) Transport(obj *udsdrv1alpha1.ObjResource) e
 	return nil
 }
 
-func prepareTransportWhenCreating(obj *udsdrv1alpha1.ObjResource) *udsdrv1alpha1.ObjResource {
+func prepareTransportWhenCreating(obj *drv1alpha1.ObjResource) *drv1alpha1.ObjResource {
 	unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "resourceVersion")
 	unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "uid")
 
-	if *obj.GVR == udsdrv1alpha1.PersistentVolumeGVR {
+	if *obj.GVR == drv1alpha1.PersistentVolumeGVR {
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "spec", "claimRef", "resourceVersion")
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "spec", "claimRef", "uid")
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "annotations", "pv.kubernetes.io/bind-completed")
 	}
 
-	if *obj.GVR == udsdrv1alpha1.PersistentVolumeClaimGVR {
+	if *obj.GVR == drv1alpha1.PersistentVolumeClaimGVR {
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "annotations", "pv.kubernetes.io/bind-completed")
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "annotations", "pv.kubernetes.io/bound-by-controller")
 	}
 	return obj
 }
 
-func prepareTransportWhenUpdating(obj *udsdrv1alpha1.ObjResource, originalUnstructured *unstructured.Unstructured) *udsdrv1alpha1.ObjResource {
+func prepareTransportWhenUpdating(obj *drv1alpha1.ObjResource, originalUnstructured *unstructured.Unstructured) *drv1alpha1.ObjResource {
 	originalResourceVersion := originalUnstructured.GetResourceVersion()
 	obj.Unstructured.SetResourceVersion(originalResourceVersion)
 	originalUID := originalUnstructured.GetUID()
 	obj.Unstructured.SetUID(originalUID)
 
-	if *obj.GVR == udsdrv1alpha1.PersistentVolumeGVR {
+	if *obj.GVR == drv1alpha1.PersistentVolumeGVR {
 		originalClaimRefResourceVersion, _, _ := unstructured.NestedString(originalUnstructured.Object, "spec", "claimRef", "resourceVersion")
 		unstructured.SetNestedField(obj.Unstructured.Object, originalClaimRefResourceVersion, "spec", "claimRef", "resourceVersion")
 		originalClaimRefUID, _, _ := unstructured.NestedString(originalUnstructured.Object, "spec", "claimRef", "uid")
@@ -182,24 +182,24 @@ func prepareTransportWhenUpdating(obj *udsdrv1alpha1.ObjResource, originalUnstru
 	return obj
 }
 
-func prepareTransport(obj *udsdrv1alpha1.ObjResource, originalUnstructured *unstructured.Unstructured) {
+func prepareTransport(obj *drv1alpha1.ObjResource, originalUnstructured *unstructured.Unstructured) {
 	switch obj.Action {
-	case udsdrv1alpha1.ObjectActionCreate:
+	case drv1alpha1.ObjectActionCreate:
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "resourceVersion")
 		unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "uid")
-	case udsdrv1alpha1.ObjectActionUpdate:
+	case drv1alpha1.ObjectActionUpdate:
 		originalResourceVersion := originalUnstructured.GetResourceVersion()
 		obj.Unstructured.SetResourceVersion(originalResourceVersion)
 		originalUID := originalUnstructured.GetUID()
 		obj.Unstructured.SetUID(originalUID)
 	}
 
-	if *obj.GVR == udsdrv1alpha1.PersistentVolumeGVR {
+	if *obj.GVR == drv1alpha1.PersistentVolumeGVR {
 		switch obj.Action {
-		case udsdrv1alpha1.ObjectActionCreate:
+		case drv1alpha1.ObjectActionCreate:
 			unstructured.RemoveNestedField(obj.Unstructured.Object, "spec", "claimRef", "resourceVersion")
 			unstructured.RemoveNestedField(obj.Unstructured.Object, "spec", "claimRef", "uid")
-		case udsdrv1alpha1.ObjectActionUpdate:
+		case drv1alpha1.ObjectActionUpdate:
 			originalClaimRefResourceVersion, _, _ := unstructured.NestedString(originalUnstructured.Object, "spec", "claimRef", "resourceVersion")
 			unstructured.SetNestedField(obj.Unstructured.Object, originalClaimRefResourceVersion, "spec", "claimRef", "resourceVersion")
 			originalClaimRefUID, _, _ := unstructured.NestedString(originalUnstructured.Object, "spec", "claimRef", "uid")

@@ -3,7 +3,7 @@ package listwatch
 import (
 	"context"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -23,7 +23,7 @@ var (
 	ListWatchExcludeGroups = []string{
 		"coordination.k8s.io",
 		"events.k8s.io",
-		"udsdr.dce.daocloud.io",
+		"dr.dce.daocloud.io",
 	}
 	ListWatchExcludeResources = []string{
 		"endpoints",
@@ -51,10 +51,10 @@ var (
 )
 
 type collector struct {
-	ResourceChan chan *udsdrv1alpha1.ObjResource
+	ResourceChan chan *drv1alpha1.ObjResource
 }
 
-func New(resourceChan chan *udsdrv1alpha1.ObjResource) *collector {
+func New(resourceChan chan *drv1alpha1.ObjResource) *collector {
 	return &collector{
 		ResourceChan: resourceChan,
 	}
@@ -110,9 +110,9 @@ func (c *collector) Start(ctx context.Context) {
 				unobj := unstructured.Unstructured{
 					Object: unobjMap,
 				}
-				objr := udsdrv1alpha1.ObjResource{
+				objr := drv1alpha1.ObjResource{
 					Unstructured: &unobj,
-					Action:       udsdrv1alpha1.ObjectActionCreate,
+					Action:       drv1alpha1.ObjectActionCreate,
 					GVR:          gvr,
 				}
 				logger.Debugf("informer adding resource %s(namespace:%s name:%s)",
@@ -126,9 +126,9 @@ func (c *collector) Start(ctx context.Context) {
 				unobj := unstructured.Unstructured{
 					Object: unobjMap,
 				}
-				objr := udsdrv1alpha1.ObjResource{
+				objr := drv1alpha1.ObjResource{
 					Unstructured: &unobj,
-					Action:       udsdrv1alpha1.ObjectActionUpdate,
+					Action:       drv1alpha1.ObjectActionUpdate,
 					GVR:          gvr,
 				}
 				logger.Debugf("informer updating resource %s(namespace:%s name:%s)",
@@ -142,9 +142,9 @@ func (c *collector) Start(ctx context.Context) {
 				unobj := unstructured.Unstructured{
 					Object: unobjMap,
 				}
-				objr := udsdrv1alpha1.ObjResource{
+				objr := drv1alpha1.ObjResource{
 					Unstructured: &unobj,
-					Action:       udsdrv1alpha1.ObjectActionDelete,
+					Action:       drv1alpha1.ObjectActionDelete,
 					GVR:          gvr,
 				}
 				logger.Debugf("informer deleting %s(namespace:%s name:%s)",

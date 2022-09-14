@@ -1,4 +1,4 @@
-apiVersion: udsdr.dce.daocloud.io/v1alpha1
+apiVersion: dr.dce.daocloud.io/v1alpha1
 kind: DRNamespace
 metadata:
   name: dr-namespace-01

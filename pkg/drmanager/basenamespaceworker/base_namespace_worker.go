@@ -3,7 +3,7 @@ package basenamespaceworker
 import (
 	"context"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	"github.com/pelicon/dr/pkg/filter"
 	"github.com/pelicon/dr/pkg/resourcemanager"
 	"github.com/pelicon/dr/pkg/transportmanager"
@@ -26,21 +26,21 @@ type BaseNamesapceWorker struct {
 	ctx                        context.Context
 	activeCtx                  context.Context
 	activeCtxCancel            context.CancelFunc
-	Namespace                  udsdrv1alpha1.Namespace
+	Namespace                  drv1alpha1.Namespace
 	Filters                    *filter.FilterAggregation
 	ResourceManager            resourcemanager.ResourceManager
 	TransportManager           transportmanager.TransportManager
 	ObjQueue                   workqueue.Interface
 	k8sControllerClient        k8sclient.Client
-	namespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc
-	transportAdapter           udsdrv1alpha1.TransportAdapter
-	collectorType              udsdrv1alpha1.ResourceCollectorType
+	namespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc
+	transportAdapter           drv1alpha1.TransportAdapter
+	collectorType              drv1alpha1.ResourceCollectorType
 }
 
-func (bnw *BaseNamesapceWorker) filter(obj *udsdrv1alpha1.ObjResource) (*udsdrv1alpha1.ObjResource, error) {
+func (bnw *BaseNamesapceWorker) filter(obj *drv1alpha1.ObjResource) (*drv1alpha1.ObjResource, error) {
 	var (
 		err       error
-		objPassed *udsdrv1alpha1.ObjResource
+		objPassed *drv1alpha1.ObjResource
 	)
 
 	for _, filter := range bnw.Filters.Filters {
@@ -58,10 +58,10 @@ func (bnw *BaseNamesapceWorker) filter(obj *udsdrv1alpha1.ObjResource) (*udsdrv1
 func NewBaseNamesapceWorker(
 	ctx context.Context,
 	k8sControllerClient k8sclient.Client,
-	namespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc,
-	transportAdapter udsdrv1alpha1.TransportAdapter,
-	collectorType udsdrv1alpha1.ResourceCollectorType,
-	namespace udsdrv1alpha1.Namespace,
+	namespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc,
+	transportAdapter drv1alpha1.TransportAdapter,
+	collectorType drv1alpha1.ResourceCollectorType,
+	namespace drv1alpha1.Namespace,
 ) NamesapceWorker {
 	bnw := &BaseNamesapceWorker{
 		ctx:                        ctx,
@@ -125,9 +125,9 @@ func (bnw *BaseNamesapceWorker) run(ctx context.Context) {
 		return
 	}
 
-	obj, canConvert := untypedObj.(*udsdrv1alpha1.ObjResource)
+	obj, canConvert := untypedObj.(*drv1alpha1.ObjResource)
 	if !canConvert {
-		logger.Errorf("resource %s(namespace:%s name:%s) can not be converted to *udsdrv1alpha1.ObjResource",
+		logger.Errorf("resource %s(namespace:%s name:%s) can not be converted to *drv1alpha1.ObjResource",
 			obj.GVR.Resource,
 			obj.Unstructured.GetNamespace(),
 			obj.Unstructured.GetName())
@@ -151,10 +151,10 @@ func (bnw *BaseNamesapceWorker) run(ctx context.Context) {
 	}
 }
 
-func (bnw *BaseNamesapceWorker) getObjectNamesapce(obj *udsdrv1alpha1.ObjResource) udsdrv1alpha1.Namespace {
-	namespace := udsdrv1alpha1.Namespace(obj.Unstructured.GetNamespace())
+func (bnw *BaseNamesapceWorker) getObjectNamesapce(obj *drv1alpha1.ObjResource) drv1alpha1.Namespace {
+	namespace := drv1alpha1.Namespace(obj.Unstructured.GetNamespace())
 	if len(namespace) == 0 {
-		return udsdrv1alpha1.ClusterResourceDelegator
+		return drv1alpha1.ClusterResourceDelegator
 	}
 	return namespace
 }

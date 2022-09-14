@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	drv1alpha1 "github.com/pelicon/dr/pkg/apis/dr/v1alpha1"
 	configs "github.com/pelicon/dr/pkg/configs"
 	"github.com/pelicon/dr/pkg/transportmanager/http"
 	"github.com/pelicon/dr/pkg/transportmanager/kubeapiserver"
@@ -22,29 +22,29 @@ var (
 )
 
 type TransportManager interface {
-	IsResourceTransported(*udsdrv1alpha1.ObjResource) bool
-	AddResourceObj(*udsdrv1alpha1.ObjResource)
+	IsResourceTransported(*drv1alpha1.ObjResource) bool
+	AddResourceObj(*drv1alpha1.ObjResource)
 	Run()
 }
 
 type Transporter interface {
-	SetConfig(*udsdrv1alpha1.PairClusterSettings)
-	Transport(*udsdrv1alpha1.ObjResource) error
+	SetConfig(*drv1alpha1.PairClusterSettings)
+	Transport(*drv1alpha1.ObjResource) error
 }
 
 type BasicTransportManager struct {
 	ctx                        context.Context
-	namespace                  udsdrv1alpha1.Namespace
+	namespace                  drv1alpha1.Namespace
 	K8sControllerClient        k8sclient.Client
-	NamespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc
+	NamespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc
 	Versions                   map[types.UID]string
 	// ObjQueue                   workqueue.Interface
 	ObjQueue         workqueue.RateLimitingInterface
-	TransportAdapter udsdrv1alpha1.TransportAdapter
+	TransportAdapter drv1alpha1.TransportAdapter
 	Transporter      Transporter
 }
 
-func (btm *BasicTransportManager) IsResourceTransported(obj *udsdrv1alpha1.ObjResource) bool {
+func (btm *BasicTransportManager) IsResourceTransported(obj *drv1alpha1.ObjResource) bool {
 	uid := obj.Unstructured.GetUID()
 	if _, exists := btm.Versions[uid]; exists {
 		return true
@@ -53,7 +53,7 @@ func (btm *BasicTransportManager) IsResourceTransported(obj *udsdrv1alpha1.ObjRe
 	return false
 }
 
-func (btm *BasicTransportManager) AddResourceObj(obj *udsdrv1alpha1.ObjResource) {
+func (btm *BasicTransportManager) AddResourceObj(obj *drv1alpha1.ObjResource) {
 	btm.ObjQueue.Add(obj)
 	logger.Debugf("obj %s(namespace:%s name:%s)enqueue transportManager",
 		obj.GVR.Resource,
@@ -76,7 +76,7 @@ func (btm *BasicTransportManager) transport(ctx context.Context) {
 		return
 	}
 
-	obj, canConvert := untypedObj.(*udsdrv1alpha1.ObjResource)
+	obj, canConvert := untypedObj.(*drv1alpha1.ObjResource)
 	if !canConvert {
 		logger.Errorf("obj can not be converted")
 		return
@@ -100,7 +100,7 @@ func (btm *BasicTransportManager) transport(ctx context.Context) {
 	objToTransport := obj.DeepCopy()
 	// btm.prepareTransport(objToTransport)
 	if err := btm.Transporter.Transport(objToTransport); err != nil {
-		syncedCondition.LastSyncedStatus = udsdrv1alpha1.SyncedStatus("fail")
+		syncedCondition.LastSyncedStatus = drv1alpha1.SyncedStatus("fail")
 		// TODO @keichen.yi should encapsulate below into a func. e.g. shouldSkipErr(err error) bool
 		// TODO @keichen.yi error should warped and match it by type
 		if strings.Contains(err.Error(), "already exists") {
@@ -130,7 +130,7 @@ func (btm *BasicTransportManager) transport(ctx context.Context) {
 
 // }
 
-func (btm *BasicTransportManager) isNewVersion(obj *udsdrv1alpha1.ObjResource) bool {
+func (btm *BasicTransportManager) isNewVersion(obj *drv1alpha1.ObjResource) bool {
 	recievedObjVerison := obj.Unstructured.GetResourceVersion()
 	recievedObjUID := obj.Unstructured.GetUID()
 	markedResourceVersion, exists := btm.Versions[recievedObjUID]
@@ -148,33 +148,33 @@ func (btm *BasicTransportManager) isNewVersion(obj *udsdrv1alpha1.ObjResource) b
 	return false
 }
 
-func (btm *BasicTransportManager) markAsSuccessed(obj *udsdrv1alpha1.ObjResource) {
+func (btm *BasicTransportManager) markAsSuccessed(obj *drv1alpha1.ObjResource) {
 	btm.Versions[obj.Unstructured.GetUID()] = obj.Unstructured.GetResourceVersion()
 }
 
-// func (btm *BasicTransportManager) prepareTransport(obj *udsdrv1alpha1.ObjResource) {
-// 	if obj.Action != udsdrv1alpha1.ObjectActionUpdate {
+// func (btm *BasicTransportManager) prepareTransport(obj *drv1alpha1.ObjResource) {
+// 	if obj.Action != drv1alpha1.ObjectActionUpdate {
 // 		unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "resourceVersion")
 // 	}
 // 	unstructured.RemoveNestedField(obj.Unstructured.Object, "metadata", "uid")
 // }
 
-func generateSyncedCondition(obj *udsdrv1alpha1.ObjResource) udsdrv1alpha1.SyncedCondition {
-	gvk := udsdrv1alpha1.GroupVersionKind{
+func generateSyncedCondition(obj *drv1alpha1.ObjResource) drv1alpha1.SyncedCondition {
+	gvk := drv1alpha1.GroupVersionKind{
 		Group:   obj.GVR.Group,
 		Version: obj.GVR.Version,
 		Kind:    obj.GVR.Resource,
 	}
-	objectKey := udsdrv1alpha1.ObjectKey{
+	objectKey := drv1alpha1.ObjectKey{
 		Namespace: obj.Unstructured.GetNamespace(),
 		Name:      obj.Unstructured.GetName(),
 	}
-	gvko := udsdrv1alpha1.GroupVersionKindObject{
+	gvko := drv1alpha1.GroupVersionKindObject{
 		GroupVersionKind: gvk,
 		ObjectKey:        objectKey,
 	}
 
-	syncedCondition := udsdrv1alpha1.SyncedCondition{
+	syncedCondition := drv1alpha1.SyncedCondition{
 		GroupVersionKindObject:    gvko,
 		LastSyncedResourceVersion: obj.Unstructured.GetResourceVersion(),
 		LastSyncedStatus:          "success",
@@ -184,10 +184,10 @@ func generateSyncedCondition(obj *udsdrv1alpha1.ObjResource) udsdrv1alpha1.Synce
 
 func NewBasicTransportManager(
 	ctx context.Context,
-	namespace udsdrv1alpha1.Namespace,
+	namespace drv1alpha1.Namespace,
 	k8sControllerClient k8sclient.Client,
-	namespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc,
-	transportAdapter udsdrv1alpha1.TransportAdapter,
+	namespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc,
+	transportAdapter drv1alpha1.TransportAdapter,
 ) TransportManager {
 	transporter := newTransporter(ctx, k8sControllerClient, namespacedStatusUpdateFunc, transportAdapter)
 	configs.GetConfigContainer().RegClusterConfigListener(namespace, transporter.SetConfig)
@@ -209,13 +209,13 @@ func NewBasicTransportManager(
 func newTransporter(
 	ctx context.Context,
 	k8sControllerClient k8sclient.Client,
-	namespacedStatusUpdateFunc udsdrv1alpha1.NamespacedStatusUpdateFunc,
-	transportAdapter udsdrv1alpha1.TransportAdapter,
+	namespacedStatusUpdateFunc drv1alpha1.NamespacedStatusUpdateFunc,
+	transportAdapter drv1alpha1.TransportAdapter,
 ) Transporter {
 	switch transportAdapter {
-	case udsdrv1alpha1.TransportAdapterKubeApiserver:
+	case drv1alpha1.TransportAdapterKubeApiserver:
 		return kubeapiserver.New(ctx, k8sControllerClient, namespacedStatusUpdateFunc)
-	case udsdrv1alpha1.TransportAdapterHTTP:
+	case drv1alpha1.TransportAdapterHTTP:
 		return http.New(ctx, k8sControllerClient, namespacedStatusUpdateFunc)
 	}
 	//todo do not return nil

@@ -10,6 +10,6 @@ RUN chmod +x /usr/bin/operator-sdk /go/bin/protoc-gen-go
 ENV GO111MODULE=on GOPROXY=https://goproxy.io
 RUN go get github.com/golang/mock/mockgen@v1.3.1
 RUN git clone -b release-1.18 --single-branch https://gitee.com/newlooc/code-generator.git && mv code-generator /code-generator
-RUN echo "replace github.com/DaoCloud/uds => /go/src/github.com/DaoCloud/uds" >> /code-generator/go.mod
+RUN echo "replace github.com/DaoCloud/pelicon => /go/src/github.com/DaoCloud/pelicon" >> /code-generator/go.mod
 COPY boilerplate.go.txt /code-generator/boilerplate.go.txt
 
