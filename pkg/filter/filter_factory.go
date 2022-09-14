@@ -3,12 +3,12 @@ package filter
 import (
 	"sync"
 
-	udsdrv1alpha1 "github.com/DaoCloud/udsdr/pkg/apis/udsdr/v1alpha1"
-	configs "github.com/DaoCloud/udsdr/pkg/configs"
-	"github.com/DaoCloud/udsdr/pkg/filter/pvcfilter"
-	"github.com/DaoCloud/udsdr/pkg/filter/variabledeletefilter"
-	"github.com/DaoCloud/udsdr/pkg/filter/variablemappingfilter"
-	"github.com/DaoCloud/udsdr/pkg/filter/whitelistfilter"
+	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	configs "github.com/pelicon/dr/pkg/configs"
+	"github.com/pelicon/dr/pkg/filter/pvcfilter"
+	"github.com/pelicon/dr/pkg/filter/variabledeletefilter"
+	"github.com/pelicon/dr/pkg/filter/variablemappingfilter"
+	"github.com/pelicon/dr/pkg/filter/whitelistfilter"
 	log "github.com/sirupsen/logrus"
 )
 

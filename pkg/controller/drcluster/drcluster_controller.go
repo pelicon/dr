@@ -4,8 +4,8 @@ import (
 	"context"
 	//	"reflect"
 
-	udsdrv1alpha1 "github.com/DaoCloud/udsdr/pkg/apis/udsdr/v1alpha1"
-	configs "github.com/DaoCloud/udsdr/pkg/configs"
+	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	configs "github.com/pelicon/dr/pkg/configs"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"

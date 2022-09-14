@@ -14,11 +14,11 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 
-	"github.com/DaoCloud/udsdr/pkg/apis"
-	"github.com/DaoCloud/udsdr/pkg/controller"
-	"github.com/DaoCloud/udsdr/version"
+	"github.com/pelicon/dr/pkg/apis"
+	"github.com/pelicon/dr/pkg/controller"
+	"github.com/pelicon/dr/version"
 
-	udsdrv1alpha1 "github.com/DaoCloud/udsdr/pkg/apis/udsdr/v1alpha1"
+	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
