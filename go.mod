@@ -1,4 +1,4 @@
-module github.com/DaoCloud/udsdr
+module github.com/pelicon/dr
 
 go 1.13
 

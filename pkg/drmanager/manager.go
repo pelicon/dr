@@ -2,10 +2,10 @@ package drmanager
 
 import (
 	"context"
-	udsdrv1alpha1 "github.com/DaoCloud/udsdr/pkg/apis/udsdr/v1alpha1"
-	//	"github.com/DaoCloud/udsdr/pkg/drmanager/basenamespaceworker"
-	"github.com/DaoCloud/udsdr/pkg/drmanager/dependencynamespaceworker"
-	"github.com/DaoCloud/udsdr/pkg/namespacecrstatusupdater"
+	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	//	"github.com/pelicon/dr/pkg/drmanager/basenamespaceworker"
+	"github.com/pelicon/dr/pkg/drmanager/dependencynamespaceworker"
+	"github.com/pelicon/dr/pkg/namespacecrstatusupdater"
 	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 )
 

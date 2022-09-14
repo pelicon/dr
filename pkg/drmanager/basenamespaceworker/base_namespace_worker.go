@@ -3,10 +3,10 @@ package basenamespaceworker
 import (
 	"context"
 
-	udsdrv1alpha1 "github.com/DaoCloud/udsdr/pkg/apis/udsdr/v1alpha1"
-	"github.com/DaoCloud/udsdr/pkg/filter"
-	"github.com/DaoCloud/udsdr/pkg/resourcemanager"
-	"github.com/DaoCloud/udsdr/pkg/transportmanager"
+	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	"github.com/pelicon/dr/pkg/filter"
+	"github.com/pelicon/dr/pkg/resourcemanager"
+	"github.com/pelicon/dr/pkg/transportmanager"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/util/workqueue"

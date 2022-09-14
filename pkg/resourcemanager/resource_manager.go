@@ -3,9 +3,9 @@ package resourcemanager
 import (
 	"context"
 
-	udsdrv1alpha1 "github.com/DaoCloud/udsdr/pkg/apis/udsdr/v1alpha1"
-	"github.com/DaoCloud/udsdr/pkg/resourcemanager/listwatch"
-	"github.com/DaoCloud/udsdr/pkg/resourcemanager/periodic"
+	udsdrv1alpha1 "github.com/pelicon/dr/pkg/apis/udsdr/v1alpha1"
+	"github.com/pelicon/dr/pkg/resourcemanager/listwatch"
+	"github.com/pelicon/dr/pkg/resourcemanager/periodic"
 	log "github.com/sirupsen/logrus"
 )
 

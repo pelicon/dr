@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"github.com/DaoCloud/udsdr/pkg/controller/drcluster"
-	"github.com/DaoCloud/udsdr/pkg/controller/drnamespace"
+	"github.com/pelicon/dr/pkg/controller/drcluster"
+	"github.com/pelicon/dr/pkg/controller/drnamespace"
 )
 
 func init() {
