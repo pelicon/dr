@@ -1,4 +1,4 @@
-PELICON_DR_NAME = dce-pelicon-dr-controller
+PELICON_DR_NAME = pelicon-dr-controller
 PELICON_DR_IMAGE_DIR = ${PROJECT_SOURCE_CODE_DIR}/build
 PELICON_DR_BUILD_BIN = ${BINS_DIR}/${PELICON_DR_NAME}-run
 PELICON_DR_BUILD_MAIN = ${CMDS_DIR}/manager/main.go
