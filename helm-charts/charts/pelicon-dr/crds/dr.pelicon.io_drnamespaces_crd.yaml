@@ -1,0 +1,475 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: drnamespaces.dr.pelicon.io
+spec:
+  group: dr.pelicon.io
+  names:
+    kind: DRNamespace
+    listKind: DRNamespaceList
+    plural: drnamespaces
+    shortNames:
+    - drns
+    singular: drnamespace
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: DR namespace
+      jsonPath: .metadata.namespace
+      name: namespace
+      type: string
+    - description: DR role
+      jsonPath: .status.role
+      name: role
+      type: string
+    - description: DR role
+      jsonPath: .status.active
+      name: active
+      type: string
+    - description: DR role
+      jsonPath: .status.transportAdapter
+      name: transportAdapter
+      type: string
+    - description: DR role
+      jsonPath: .status.collectorType
+      name: collectorType
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: DRNamespaceSpec defines the desired state of DRNamespace
+            properties:
+              active:
+                type: boolean
+              collectorType:
+                type: string
+              drFilterConfig:
+                description: DRFilterConfig represents filter manager config of DR
+                  module. it's used as a configmap data in Kubernetes, namespace kube-system
+                  means admin user, who had able to manage cluter resources.
+                properties:
+                  variableDeleteFilter:
+                    properties:
+                      kindVariableDelete:
+                        items:
+                          properties:
+                            keyValueDelete:
+                              items:
+                                type: string
+                              type: array
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                      objectVariableDelete:
+                        items:
+                          properties:
+                            keyValueDelete:
+                              items:
+                                type: string
+                              type: array
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                    type: object
+                  variableMappingFilter:
+                    properties:
+                      kindListVariableMappings:
+                        items:
+                          properties:
+                            keyValueMappings:
+                              additionalProperties:
+                                properties:
+                                  fromSubStr:
+                                    type: string
+                                  toSubStr:
+                                    type: string
+                                  variableType:
+                                    type: string
+                                type: object
+                              type: object
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                      objectVariableMappings:
+                        items:
+                          properties:
+                            keyValueMappings:
+                              additionalProperties:
+                                properties:
+                                  fromSubStr:
+                                    type: string
+                                  toSubStr:
+                                    type: string
+                                  variableType:
+                                    type: string
+                                type: object
+                              type: object
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                    type: object
+                  whiteListFilter:
+                    properties:
+                      kindWhiteList:
+                        items:
+                          properties:
+                            group:
+                              type: string
+                            kind:
+                              type: string
+                            version:
+                              type: string
+                          type: object
+                        type: array
+                      objectWhiteList:
+                        items:
+                          properties:
+                            group:
+                              type: string
+                            kind:
+                              type: string
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                            version:
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                type: object
+              drPairCluster:
+                type: string
+              role:
+                type: string
+              transportAdapter:
+                type: string
+            required:
+            - active
+            - drPairCluster
+            type: object
+          status:
+            description: DRNamespaceStatus defines the observed state of DRNamespace
+            properties:
+              active:
+                type: boolean
+              collectorType:
+                type: string
+              drFilterConfig:
+                description: DRFilterConfig represents filter manager config of DR
+                  module. it's used as a configmap data in Kubernetes, namespace kube-system
+                  means admin user, who had able to manage cluter resources.
+                properties:
+                  variableDeleteFilter:
+                    properties:
+                      kindVariableDelete:
+                        items:
+                          properties:
+                            keyValueDelete:
+                              items:
+                                type: string
+                              type: array
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                      objectVariableDelete:
+                        items:
+                          properties:
+                            keyValueDelete:
+                              items:
+                                type: string
+                              type: array
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                    type: object
+                  variableMappingFilter:
+                    properties:
+                      kindListVariableMappings:
+                        items:
+                          properties:
+                            keyValueMappings:
+                              additionalProperties:
+                                properties:
+                                  fromSubStr:
+                                    type: string
+                                  toSubStr:
+                                    type: string
+                                  variableType:
+                                    type: string
+                                type: object
+                              type: object
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                      objectVariableMappings:
+                        items:
+                          properties:
+                            keyValueMappings:
+                              additionalProperties:
+                                properties:
+                                  fromSubStr:
+                                    type: string
+                                  toSubStr:
+                                    type: string
+                                  variableType:
+                                    type: string
+                                type: object
+                              type: object
+                            kind:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            object:
+                              properties:
+                                group:
+                                  type: string
+                                kind:
+                                  type: string
+                                name:
+                                  type: string
+                                namespace:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                          type: object
+                        type: array
+                    type: object
+                  whiteListFilter:
+                    properties:
+                      kindWhiteList:
+                        items:
+                          properties:
+                            group:
+                              type: string
+                            kind:
+                              type: string
+                            version:
+                              type: string
+                          type: object
+                        type: array
+                      objectWhiteList:
+                        items:
+                          properties:
+                            group:
+                              type: string
+                            kind:
+                              type: string
+                            name:
+                              type: string
+                            namespace:
+                              type: string
+                            version:
+                              type: string
+                          type: object
+                        type: array
+                    type: object
+                type: object
+              drPairCluster:
+                type: string
+              role:
+                type: string
+              syncConditions:
+                additionalProperties:
+                  properties:
+                    groupVersionKindObject:
+                      properties:
+                        group:
+                          type: string
+                        kind:
+                          type: string
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                        version:
+                          type: string
+                      type: object
+                    lastResourceVersion:
+                      type: string
+                    lastSyncedStatus:
+                      type: string
+                  type: object
+                description: TODO default variabledeletefilterconfigstatus
+                type: object
+              transportAdapter:
+                type: string
+            required:
+            - active
+            - drPairCluster
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

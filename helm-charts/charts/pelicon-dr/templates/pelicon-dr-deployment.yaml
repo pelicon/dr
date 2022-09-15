@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pelicon-dr-controller
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: pelicon-dr-controller
+  template:
+    metadata:
+      labels:
+        name: pelicon-dr-controller
+    spec:
+      serviceAccount: pelicondr-admin
+      containers:
+        - name: pelicon-dr-controller
+          image: {{ .Values.peliconImageRegistry}}/{{ .Values.drcontroller.imageRepository}}:{{ .Values.drcontroller.tag}}
+          imagePullPolicy: IfNotPresent
+          args:
+          env:
+            - name: WATCH_NAMESPACE
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "pelicon-dr-controller"
+          resources:
+            limits:
+              cpu: {{ .Values.drcontroller.resources.limits.cpu}}
+              memory: {{ .Values.drcontroller.resources.limits.memory}}
+            requests:
+              cpu: {{ .Values.drcontroller.resources.requests.cpu}}
+              memory: {{ .Values.drcontroller.resources.requests.memory}}
+          volumeMounts:
+            - name: timezone
+              mountPath: /etc/localtime
+      volumes:
+        - name: timezone
+          hostPath:
+            path: /etc/localtime
+

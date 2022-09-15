@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pelicon dr
+description: pelicon dr
+type: application
+version: 0.0.1
+appVersion:
