@@ -1,0 +1,15 @@
+peliconImageRegistry: ghcr.io
+# Users in China can change to these sites for option
+#peliconImageRegistry: ghcr.m.daocloud.io
+
+drcontroller:
+  replicas: 1
+  imageRepository: pelicon/dr
+  tag: v0.0.1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 300Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
