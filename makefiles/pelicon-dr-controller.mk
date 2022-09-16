@@ -3,8 +3,7 @@ PELICON_DR_IMAGE_DIR = ${PROJECT_SOURCE_CODE_DIR}/build
 PELICON_DR_BUILD_BIN = ${BINS_DIR}/${PELICON_DR_NAME}-run
 PELICON_DR_BUILD_MAIN = ${CMDS_DIR}/manager/main.go
 
-PELICON_DR_IMAGE_NAME = ${DOCKER_REGISTRY}/${PELICON_DR_NAME}
-PELICON_DR_RELEASE_IMAGE_NAME = ${RELEASE_DOCKER_REGISTRY}/${PELICON_DR_NAME}
+PELICON_DR_RELEASE_IMAGE_NAME = ${IMAGE_REGISTRY}/${PELICON_DR_NAME}
 
 .PHONY: pelicon_dr
 pelicon_dr:
@@ -13,12 +12,6 @@ pelicon_dr:
 .PHONY: pelicon_dr_arm64
 pelicon_dr_arm64:
 	GOARCH=arm64 ${BUILD_ENVS} ${BUILD_CMD} ${BUILD_OPTIONS} -o ${PELICON_DR_BUILD_BIN} ${PELICON_DR_BUILD_MAIN}
-
-.PHONY: pelicon_dr_image
-pelicon_dr_image:
-	${DOCKER_MAKE_CMD} make pelicon_dr
-	docker build -t ${PELICON_DR_IMAGE_NAME}:${IMAGE_TAG} -f ${PELICON_DR_IMAGE_DIR}/Dockerfile ${PROJECT_SOURCE_CODE_DIR}
-	docker push ${PELICON_DR_IMAGE_NAME}:${IMAGE_TAG}
 
 .PHONY: pelicon_dr_release
 pelicon_dr_release:
