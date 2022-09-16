@@ -1,0 +1,9 @@
+{{- range .Values.drClusters }}
+---
+apiVersion: dr.pelicon.io/v1alpha1
+kind: DRCluster
+metadata:
+  name: {{ .clusterName }}
+spec:
+  {{- toYaml .clusterSpec | nindent 2 }}
+{{- end }}
