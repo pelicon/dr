@@ -13,3 +13,117 @@ drcontroller:
     requests:
       cpu: 100m
       memory: 100Mi
+
+drClusters:
+  - clusterName: dr-cluster-01
+    clusterSpec:
+      active: true
+      collectorType: dr_resource_collector_list_watch
+      pairClusterSettings:
+        kubeApiServerSettings:
+          burst: 30
+          certData: |
+            -----BEGIN CERTIFICATE-----
+            MIIDITCCAgmgAwIBAgIIZlw0v7glV1gwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+            AxMKa3ViZXJuZXRlczAeFw0yMjA0MTkwODMwMjdaFw0yMzA0MTkwODMwMzFaMDQx
+            FzAVBgNVBAoTDnN5c3RlbTptYXN0ZXJzMRkwFwYDVQQDExBrdWJlcm5ldGVzLWFk
+            bWluMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuUaJeWX4WAy8FeHs
+            E+QW9wvqVCJ1sgyWS/9Hkil2WenPKfD8Ab2mGDT4A0N61y5/ioz7SawiMaMKa4Cx
+            bWkAmEEgtnXuns45QwJZiL5XjqezengzHxTH0dq4eRpD/HhkFCvaTJEpBb9b3gy7
+            BRiFu4IuPBdD+s5lu+ybngMol47oe7YBuRInWbB7ypjRm/gAufStlAT1vjdUp1St
+            MCMURfiUS4P+W7Zwc1UgmLRp3rQyf1y9RHcBb2JCvQ008uZcDC9cCddyngc9dx2L
+            UCks11iyeLs6bHi5E2SHGWxt1eCTYaazgyyaM23CjbwfHr+Pkq1gXyTBDxt3LduP
+            dcTKHQIDAQABo1YwVDAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0lBAwwCgYIKwYBBQUH
+            AwIwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBRt/g3vrOcyyJDjmC/LCJugYwDm
+            ATANBgkqhkiG9w0BAQsFAAOCAQEAciPK8JiX7flDjtN787Ss4uc0j1NP5DyHYXqG
+            mVAVLd0FBaZh/jQZu3sL1iSPmVBeTXp94UlGHKg79P2QubMQRDjdIsX8bqpcGGDE
+            lshAq6tiOxaIqtwRIUEVrPQNiuOisUFIxpjhfX3wNb6/2IaU4RsjBeHc4iZC5GkU
+            XoKpUami2zJ8upyJbQjhrCJdBOSYA5D+42XoMHOhV6KkDX8pC05kOOuAn8G/MG9T
+            40PZ7It8nQDlBVkv+4UiJxtTsttCKZh4D/6GLyMePsB0T7jEyBFtU7w8kjXVztHS
+            ltBNju1qzSMIH/Ylga16F8GvnybJOLBST6u31f55yXcZDN2+uw==
+            -----END CERTIFICATE-----
+          keyData: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIIEpAIBAAKCAQEAuUaJeWX4WAy8FeHsE+QW9wvqVCJ1sgyWS/9Hkil2WenPKfD8
+            Ab2mGDT4A0N61y5/ioz7SawiMaMKa4CxbWkAmEEgtnXuns45QwJZiL5Xjqezengz
+            HxTH0dq4eRpD/HhkFCvaTJEpBb9b3gy7BRiFu4IuPBdD+s5lu+ybngMol47oe7YB
+            uRInWbB7ypjRm/gAufStlAT1vjdUp1StMCMURfiUS4P+W7Zwc1UgmLRp3rQyf1y9
+            RHcBb2JCvQ008uZcDC9cCddyngc9dx2LUCks11iyeLs6bHi5E2SHGWxt1eCTYaaz
+            gyyaM23CjbwfHr+Pkq1gXyTBDxt3LduPdcTKHQIDAQABAoIBAQCUqlfnVH4o0Ncf
+            S/AtqckPpLz7k8cS/myfQJDCZIi17xmvEtJz5yReqioUHFJ2VbY7i5KbdAbgA256
+            AoLcQvQaN7AzGIBHZzylWz5SrkD9k+09KTQEDZ2k8zcw3XWOIWBUmzeIVrYvCXSC
+            wX5TwXCVnAjTaOvAVVtmpp3b9bbdnIzt4v9lS+FlXrBP9u3eniq3KXLCdELrcZ8Q
+            d2+XRqsMA1fmGFuw/aKUrJbCJeRSYjafcEPaxz+dlemx9epm9gf+E+h096Bk9TON
+            VNDraU5WTh2PrvPMlsCu271F4AgtEZZxnluLo4e+VQgpEYGS/b9tbZdteLEIdU/r
+            H6BShXmVAoGBAMsdV0hMZDuP0AhoNGo8iA43BgouTM1xDZD2QsN3GxOfmA1hXPUy
+            Tald3RWD8LnY6xpyjzQk9j2vc/0W5n0peyocrr8n17rBz5gFHPQrzZ8H975cLqGO
+            Y5SI3xXqJF8L+7N5nCWKyrfOe7EQuzKE8uXfo14yEEW8+jPSLlPRGi+fAoGBAOmE
+            IKZFm0IW5lj5+YKmrp4vKSTNYY562ktxmNFxJbTNHZ12MAr4k1d9iLHtdfw1F2IR
+            ECKPrHz7jY5B+NbF4yGY/JE26wRmHSHKCSC7ygwF3suSHeOIOwUxOSS1Vp95QTXw
+            k3XC1mapci9oRFv06OGg3cXG6EHaFc+7sqEqzvzDAoGARLaRX5EQW6IEU8PE76e4
+            s25j6a/OJbY4S7Ez1uKFU3crPmOQyhaRdVmewHeZSZYbux/EWHSkpSulBprnsLIG
+            y7FWYK6+6ZxFeX1JVUU4U7OjWU/gKqF8CLThG43RbiIkrYvXik/Q0qvU5orteWLG
+            tYOZxfUT0jPjRQK2z34u6KsCgYEA2d3tfFQrA+FLrq4jLdOHzYwgrfZ007MpYgQt
+            WRNg46wPum6fakz7Y0B7Pc5YKyP5mgRjcmtrufwU2SoSGYftXtZWpsF/Sc5f1buj
+            AohSfR8o+/NqsXPT5QdE0kvh8s31mnbHjbJnyMbFAxgb11PLx18IKtNmtLHdccAk
+            bBv9nHMCgYAt3QaLmAPa7PdVRQVu5mtRiKIyEgPpaxCCNg1IcpQaW5K8ZArg5MQo
+            V1GIPuI3hZxLd2vMIm7KcdetoH5VdTQ2xGbQZtC+N9x3JzxCW4yTHz25oJq+Wcid
+            jjtoCta3LFfT0KS+5ZRXQ615RzKGKt2h8B54/ylzp4kijvaEFHr3tw==
+            -----END RSA PRIVATE KEY-----
+          kubeApiServerHost: 10.7.209.102:6443
+          qps: 20
+      role: dr_role_bkup
+      transportAdapter: dr_transport_adapter_kube_apiserver
+    
+namespacesToSync:
+  - namespace: default
+    spec:
+      active: true
+      collectorType: dr_resource_collector_list_watch
+      drFilterConfig:
+        variableMappingFilter:
+          kindListVariableMappings:
+          - keyValueMappings:
+              spec,template,spec,containers,image:
+                fromSubStr: 100.199.142.173
+                toSubStr: 100.199.142.179
+                variableType: var_t_str
+              spec,replicas:
+                toSubStr: "0"
+                variableType: var_t_int
+            kind:
+              group: apps
+              kind: Deployment
+              version: v1
+          - keyValueMappings:
+              spec,template,spec,containers,image:
+                fromSubStr: 100.199.142.173
+                toSubStr: 100.199.142.179
+                variableType: var_t_str
+              spec,replicas:
+                toSubStr: "1"
+                variableType: var_t_int
+            kind:
+              group: apps
+              kind: StatefulSet
+              version: v1
+        whiteListFilter:
+          kindWhiteList:
+          - group: apps
+            kind: Deployment
+            version: v1
+          - kind: PersistentVolumeClaim
+            version: v1
+          - kind: PersistentVolume
+            version: v1
+          - kind: ConfigMap
+            version: v1
+          - group: apps
+            kind: StatefulSet
+            version: v1
+          - group: pelicon.io
+            kind: App
+            version: v1beta1
+      drPairCluster: dr-cluster-01
+      role: dr_role_prod
+      transportAdapter: dr_transport_adapter_kube_apiserver

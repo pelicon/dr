@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pelicon-dr-controller
-  namespace: kube-system
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -28,12 +28,7 @@ spec:
             - name: OPERATOR_NAME
               value: "pelicon-dr-controller"
           resources:
-            limits:
-              cpu: {{ .Values.drcontroller.resources.limits.cpu}}
-              memory: {{ .Values.drcontroller.resources.limits.memory}}
-            requests:
-              cpu: {{ .Values.drcontroller.resources.requests.cpu}}
-              memory: {{ .Values.drcontroller.resources.requests.memory}}
+          {{- toYaml .Values.drcontroller.resources | nindent 12 }}
           volumeMounts:
             - name: timezone
               mountPath: /etc/localtime

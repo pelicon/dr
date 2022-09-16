@@ -1,0 +1,10 @@
+{{- range .Values.namespacesToSync }}
+---
+apiVersion: dr.pelicon.io/v1alpha1
+kind: DRNamespace
+metadata:
+  name: {{ .namespace }}
+  namespace: {{ .namespace }}
+spec:
+  {{- toYaml .spec | nindent 2 }}
+{{- end }}
