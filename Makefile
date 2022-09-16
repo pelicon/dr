@@ -1,6 +1,4 @@
-DOCKER_REGISTRY ?= 10.6.170.180/pelicon
-RELEASE_DOCKER_REGISTRY ?= pelicon.io/dr
-#RELEASE_DOCKER_REGISTRY ?= 10.6.170.180/pelicon
+IMAGE_REGISTRY ?= ghcr.io/pelicon
 
 GO_VERSION = $(shell go version)
 BUILD_TIME = ${shell date +%Y-%m-%dT%H:%M:%SZ}
@@ -19,11 +17,11 @@ OPERATOR_CMD = operator-sdk
 RUN_CMD = go run
 K8S_CMD = kubectl
 
-BUILDER_NAME = ${DOCKER_REGISTRY}/dr-builder
+BUILDER_NAME = ${IMAGE_REGISTRY}/dr-builder
 BUILDER_TAG = v0.1
 BUILDER_MOUNT_SRC_DIR = ${PROJECT_SOURCE_CODE_DIR}/../
-BUILDER_MOUNT_DST_DIR = /go/src/github.com/DaoCloud
-BUILDER_WORKDIR = /go/src/github.com/DaoCloud/pelicon-dr
+BUILDER_MOUNT_DST_DIR = /go/src/github.com/pelicon
+BUILDER_WORKDIR = /go/src/github.com/pelicon/dr
 
 DOCKER_SOCK_PATH=/var/run/docker.sock
 DOCKER_MAKE_CMD = docker run --rm -v ${BUILDER_MOUNT_SRC_DIR}:${BUILDER_MOUNT_DST_DIR} -v ${DOCKER_SOCK_PATH}:${DOCKER_SOCK_PATH} -w ${BUILDER_WORKDIR} -i ${BUILDER_NAME}:${BUILDER_TAG}
@@ -62,7 +60,10 @@ clean:
 	
 .PHONY: gen_client
 gen_client:
-	${DOCKER_MAKE_CMD} /code-generator/generate-groups.sh all github.com/DaoCloud/pelicon-dr/pkg/apis/client github.com/DaoCloud/pelicon-dr/pkg/apis "dr:v1alpha1" --go-header-file /code-generator/boilerplate.go.txt
+	${DOCKER_MAKE_CMD} /code-generator/generate-groups.sh all github.com/pelicon/dr/pkg/apis/client github.com/pelicon/dr/pkg/apis "dr:v1alpha1" --go-header-file /code-generator/boilerplate.go.txt
+
+.PHONY: release
+release: pelicon_dr_release
 
 include ./makefiles/pelicon-dr-controller.mk
 
