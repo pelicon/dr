@@ -1,4 +1,4 @@
-name: Release HwameiStor
+name: release pelicon dr
 
 on:
   create:
