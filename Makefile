@@ -65,5 +65,8 @@ gen_client:
 .PHONY: release
 release: pelicon_dr_release
 
+unit-test:
+	go test -race -coverprofile=coverage.txt -covermode=atomic ./pkg/...
+
 include ./makefiles/pelicon-dr-controller.mk
 

@@ -75,9 +75,6 @@ func getFilters(fConfig *drv1alpha1.DRFilterConfig) []drv1alpha1.Filter {
 
 func addDefaultConfig(fConfig *drv1alpha1.DRFilterConfig) {
 	// enrich this if more default configs needed by filter
-	// if fConfig == nil || fConfig.WhiteListFilter == nil {
-	// 	return
-	// }
 	if fConfig == nil {
 		fConfig = &drv1alpha1.DRFilterConfig{}
 	}
@@ -86,40 +83,6 @@ func addDefaultConfig(fConfig *drv1alpha1.DRFilterConfig) {
 		fConfig.WhiteListFilter = &drv1alpha1.WhiteListFilterConfig{}
 	}
 
-	/*
-		deploymentGVK := drv1alpha1.GroupVersionKind{
-			Group:   "apps",
-			Version: "v1",
-			Kind:    "Deployment",
-		}
-		daemonSetGVK := drv1alpha1.GroupVersionKind{
-			Group:   "apps",
-			Version: "v1",
-			Kind:    "DaemonSet",
-		}
-		statefulSet := drv1alpha1.GroupVersionKind{
-			Group:   "apps",
-			Version: "v1",
-			Kind:    "StatefulSet",
-		}
-		pvcGVK := drv1alpha1.GroupVersionKind{
-			Version: "v1",
-			Kind:    "PersistentVolumeClaim",
-		}
-		pvGVK := drv1alpha1.GroupVersionKind{
-			Version: "v1",
-			Kind:    "PersistentVolume",
-		}
-		serviceGVK := drv1alpha1.GroupVersionKind{
-			Version: "v1",
-			Kind:    "Service",
-		}
-
-		defaultWhiteList := []drv1alpha1.GroupVersionKind{deploymentGVK, serviceGVK, daemonSetGVK, statefulSet, pvcGVK, pvGVK}
-
-		fConfig.WhiteListFilter.KindWhiteList = append(fConfig.WhiteListFilter.KindWhiteList, defaultWhiteList...)
-
-	*/
 	for _, gvk := range fConfig.WhiteListFilter.KindWhiteList {
 		vd := drv1alpha1.VariableDelete{
 			Kind: &gvk,
