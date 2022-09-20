@@ -194,10 +194,10 @@ func clearRelativeDRNamespaces(cli client.Client, ctx context.Context, clusterNa
 		if drNamespaceInstance.GetClusterName() == clusterName {
 			errDelete := cli.Delete(ctx, &drNamespaceInstance)
 			if errDelete != nil {
-				logger.Errorf("Err deleting relative drNamespace, clusterName: %v, drNamespace: %+v", drNamespaceInstance)
+				logger.Errorf("Err deleting relative drNamespace, clusterName: %v, drNamespace: %+v", drNamespaceInstance.Name, drNamespaceInstance.Namespace)
 				return errDelete
 			}
-			logger.Debugf("Deleted relative drNamespace, clusterName: %v, drNamespace: %+v", drNamespaceInstance)
+			logger.Debugf("Deleted relative drNamespace, clusterName: %v, drNamespace: %+v", drNamespaceInstance.Name, drNamespaceInstance.Namespace)
 		}
 	}
 	return nil
