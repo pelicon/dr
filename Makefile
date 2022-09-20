@@ -17,7 +17,7 @@ OPERATOR_CMD = operator-sdk
 RUN_CMD = go run
 K8S_CMD = kubectl
 
-BUILDER_NAME = ${IMAGE_REGISTRY}/dr-builder
+BUILDER_NAME = ${IMAGE_REGISTRY}/dr/builder
 BUILDER_TAG = v0.1
 BUILDER_MOUNT_SRC_DIR = ${PROJECT_SOURCE_CODE_DIR}/../
 BUILDER_MOUNT_DST_DIR = /go/src/github.com/pelicon
