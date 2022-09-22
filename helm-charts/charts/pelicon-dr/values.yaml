@@ -1,11 +1,9 @@
 peliconImageRegistry: ghcr.io
-# Users in China can change to these sites for option
-#peliconImageRegistry: ghcr.m.daocloud.io
 
 # DR Controller configs
 drcontroller:
   replicas: 1
-  imageRepository: pelicon/dr
+  imageRepository: pelicon/pelicon-dr-controller
   tag: v0.0.1
   resources:
     limits:
