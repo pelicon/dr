@@ -66,7 +66,7 @@ gen_client:
 release: pelicon_dr_release
 
 unit-test:
-	go test -race -coverprofile=coverage.txt -covermode=atomic ./pkg/...
+	bash hack/unit_test.sh
 
 include ./makefiles/pelicon-dr-controller.mk
 
