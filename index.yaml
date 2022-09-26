@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  pelicondr:
+  - apiVersion: v2
+    created: "2022-09-26T10:02:39.3107939Z"
+    description: pelicon dr
+    digest: 2c65075eb0f23bdb943d38166a8b2fc28679cd3ac026a7798be9f474a000f889
+    name: pelicondr
+    type: application
+    urls:
+    - https://github.com/pelicon/dr/releases/download/pelicondr-0.0.1/pelicondr-0.0.1.tgz
+    version: 0.0.1
+generated: "2022-09-26T10:02:39.3108037Z"
