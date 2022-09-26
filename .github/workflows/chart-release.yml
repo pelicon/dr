@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "helm-charts/charts/pelicon-dr/Chart.yaml"
+      - "charts/pelicon-dr/Chart.yaml"
 
 jobs:
   release:
