@@ -8,6 +8,7 @@ import (
 )
 
 func Test_UpdateFilterHook(t *testing.T) {
+
 	ns := drv1alpha1.Namespace("test_ns")
 	f := GetFilterAggregation(ns)
 
